@@ -1,3 +1,5 @@
+Erreichen kannst du den Plugin unter: misc.php?action=pairview
+
 #### TEMPLATES UND CSS ####
 
 pairview
