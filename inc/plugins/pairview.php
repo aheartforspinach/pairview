@@ -91,8 +91,252 @@ function pairview_install()
 
 
     //Templates
+    $insert_array = array(
+        'title' => 'pairview',
+        'template' => $db->escape_string('<html>
+<head>
+<title>{$mybb->settings[\'bbname\']} - {$lang->pairview}</title>
+{$headerinclude}
+</head>
+<body>
+{$header}
+<table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+<tr>
+<td class="thead" colspan="2"><div class="headline">{$lang->pairview}</div></td>
+</tr>
+<tr>
+	<td valign="top" width="20%">
+		{$pairview_menu}
+	</td>
+<td class="trow1" align="center" width="80%">
+	{$pair_bit}
+</td>
+</tr>
+</table>
+{$footer}
+</body>
+</html>'),
+        'sid' => '-1',
+        'version' => '',
+        'dateline' => TIME_NOW
+    );
+    $db->insert_query("templates", $insert_array);
+
+    $insert_array = array(
+        'title' => 'pairview_add',
+        'template' => $db->escape_string('<html>
+<head>
+<title>{$mybb->settings[\'bbname\']} - {$lang->pairview_add}</title>
+{$headerinclude}
+</head>
+<body>
+{$header}
+<table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+<tr>
+<td class="thead" colspan="2"><div class="headline">{$lang->pairview_add}</div></td>
+</tr>
+<tr>
+	<td valign="top" width="20%">
+		{$pairview_menu}
+	</td>
+<td class="trow1" align="center" width="80%">
+<form action="misc.php?action=pairview_add" id="pair_add"  method="post">
+<table width="100%">
+	<tr><td class="trow1">	<strong>{$lang->pairview_rela}</strong></td><td class="trow2">
+	<select name=\'typ\' id=\'typ\'>
+		{$cat_select}
+		</select></td></tr>
+	<tr><td class="trow1">	<strong>{$lang->pairview_lover1}</strong></td><td class="trow2">
+	<select name=\'lover1\' id=\'lover1\'>
+{$chara_name}
+</select></td></tr>
+	<tr><td class="trow1">	
+	<strong>{$lang->pairview_lover1_gif}</strong>
+		<div class="smalltext">{$lang->pairview_gifsize}</div></td><td class="trow2">
+<input type="text" name="gif1" id="gif1" value="" class="textbox" /></td></tr>
+	<tr><td class="trow1">	
+<strong>{$lang->pairview_lover2}</div></td><td class="trow2">
+	<select name=\'lover2\' id=\'lover2\'>
+{$chara_name}
+</select>	</td></tr>
+		<tr><td class="trow1">	
+	<strong>{$lang->pairview_lover2_gif}</strong>
+				<div class="smalltext">{$lang->pairview_gifsize}</div></td><td class="trow2">
+<input type="text" name="gif2" id="gif2" value="" class="textbox" /></td></tr>
+	<td align="center" colspan="2" class="trow1"><input type="submit" name="add" value="Pärchen eintragen" id="submit" class="button"></td></tr>
+	</table></form>
+
+</td>
+</tr>
+</table>
+{$footer}
+</body>
+</html>'),
+        'sid' => '-1',
+        'version' => '',
+        'dateline' => TIME_NOW
+    );
+    $db->insert_query("templates", $insert_array);
+
+    $insert_array = array(
+        'title' => 'pairview_bit_charas',
+        'template' => $db->escape_string('<tr><td class="trow1">
+<div class="lovebox"><table width="600px">
+	<tr><td width="100px;"><img src="{$gif1}" class="lovepic" style="margin-right: 30px;"></td>
+	<td width="400px;"><div class="lovefacts"><span class="lovefact">{$lang->pairview_lovername}</span> {$lover1}</div>
+<div class="lovefacts"><span class="lovefact">{$lang->pairview_loverage}</span> {$age1} Jahre</div>
+<div class="lovefacts"> <span class="lovefact">{$lang->pairview_lovers}</span> {$lover2}</div>
+<div class="lovefacts"><span class="lovefact">{$lang->pairview_loverage}</span> {$age2} Jahre</div></td>
+		<td width="100px;"><img src="{$gif2}" class="lovepic"></td></tr>
+	{$option}</table>
+</div>
+	</td></tr>'),
+        'sid' => '-1',
+        'version' => '',
+        'dateline' => TIME_NOW
+    );
+    $db->insert_query("templates", $insert_array);
+
+    $insert_array = array(
+        'title' => 'pairview_chara_edit',
+        'template' => $db->escape_string('<style>.infopop { position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: hsla(0, 0%, 0%, 0.5); z-index: 1; opacity:0; -webkit-transition: .5s ease-in-out; -moz-transition: .5s ease-in-out; transition: .5s ease-in-out; pointer-events: none; } .infopop:target { opacity:1; pointer-events: auto; } .infopop > .pop { width: 350px; position: relative; margin: 10% auto; padding: 25px; z-index: 3; } .closepop { position: absolute; right: -5px; top:-5px; width: 100%; height: 100%; z-index: 2; }</style>
+<div id="popinfo$row[pairId]" class="infopop">
+  <div class="pop"><form action="misc.php?action=pairview" id="pair_edit"  method="post">
+	  <input type="hidden" name="pairId" id="pairId" value="{$row[\'pairId\']}" />
+<table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+	<tr><td class="tcat" colspan="2"><div class=\'headline\'>{$lang->pairview_change}</div></td></tr>
+	<tr><td class="trow1">	<strong>{$lang->pairview_rela}</strong></td><td class="trow2">
+	<select name=\'typ\' id=\'typ\'>
+{$cat_select_edit}
+		</select></td></tr>
+		<tr><td class="trow1">	
+	<strong>{$lang->pairview_lover1}</strong>
+			<div class="smalltext">{$lang->pairview_change_lover_desc}</div>
+</td><td class="trow2">
+<input type="number" name="lover1" id="lover1" value="{$row[\'lover1\']}" class="textbox" /></td></tr>
+	<tr><td class="trow1">	
+	<strong>{$lang->pairview_lover1_gif}</strong>
+		<div class="smalltext">{$lang->pairview_gifsize}</div></td><td class="trow2">
+<input type="text" name="gif1" id="gif1" value="{$row[\'gif1\']}" class="textbox" /></td></tr>
+			<tr><td class="trow1">	
+	<strong>{$lang->pairview_lover2}</strong>
+			<div class="smalltext">{$lang->pairview_change_lover_desc}</div>
+</td><td class="trow2">
+<input type="number" name="lover2" id="lover2" value="{$row[\'lover2\']}" class="textbox" /></td></tr>
+		<tr><td class="trow1">	
+	<strong>{$lang->pairview_lover2_gif}</strong>
+			<div class="smalltext">{$lang->pairview_gifsize}</div></td><td class="trow2">
+<input type="text" name="gif2" id="gif2" value="{$row[\'gif2\']}" class="textbox" /></td></tr>
+	<td align="center" colspan="2" class="trow1"><input type="submit" name="edit" value="Pärchen editieren" id="submit" class="button"></td></tr>
+	</table></form>
+		</div><a href="#closepop" class="closepop"></a>
+</div>
+
+<a href="#popinfo$row[pairId]">{$lang->pairview_edit}</a>'),
+        'sid' => '-1',
+        'version' => '',
+        'dateline' => TIME_NOW
+    );
+    $db->insert_query("templates", $insert_array);
+
+    $insert_array = array(
+        'title' => 'pairview_chara_bit',
+        'template' => $db->escape_string('<table width="100%" style="margin: auto;">
+	<tr><td class="thead"><h1>{$typ}</h1></td></tr>
+	{$pairs}
+</table>'),
+        'sid' => '-1',
+        'version' => '',
+        'dateline' => TIME_NOW
+    );
+    $db->insert_query("templates", $insert_array);
+
+    $insert_array = array(
+        'title' => 'pairview_menu',
+        'template' => $db->escape_string('<table width="100%">
+	<tr>
+		<td class="tcat">
+			<h1>
+				Menü
+			</h1>
+		</td></tr>
+	<tr><td class="trow1">
+	<div class="love_menu">	<i class="fas fa-th-list"></i> <a href="misc.php?action=pairview">Pärchenübersicht</a></div>
+		</td></tr>
+	<tr><td class="trow2">
+	<div class="love_menu"><i class="fas fa-folder-plus"></i>	<a href="misc.php?action=pairview_add">Pärchen hinzufügen</a></div>
+		</td></tr>
+</table>'),
+        'sid' => '-1',
+        'version' => '',
+        'dateline' => TIME_NOW
+    );
+    $db->insert_query("templates", $insert_array);
+
+    //CSS einfügen
+    $css = array(
+        'name' => 'pairview.css',
+        'tid' => 1,
+        'attachedto' => '',
+        "stylesheet" =>    '.lovebox{
+width: 500px;
+margin: 5px auto;	
+	padding: 4px;
+}
+
+.lovepic{
+border:3px solid #0066a2;
+border-radius:20%;
+	height: 100px;
+	width: 90px;
+}
+
+.lovefact{
+color:#0f0f0f;
+font-size: 12px;
+text-decoration: none;
+text-transform: uppercase;
+font-weight: bold;
+}
 
 
+.lovefacts{
+font-size: 12px;
+font-weight: bold;
+border-bottom: 1px solid #0f0f0f;
+text-transform: uppercase;
+}
+
+.love_menu{
+color:#0f0f0f;
+font-size: 12px;
+text-decoration: none;
+text-transform: uppercase;
+font-weight: bold;
+}
+
+.love_menu a{
+color:#0f0f0f;
+font-size: 12px;
+text-decoration: none;
+text-transform: uppercase;
+font-weight: bold;
+}
+
+        ',
+        'cachefile' => $db->escape_string(str_replace('/', '', 'pairview.css')),
+        'lastmodified' => time()
+    );
+
+    require_once MYBB_ADMIN_DIR . "inc/functions_themes.php";
+
+    $sid = $db->insert_query("themestylesheets", $css);
+    $db->update_query("themestylesheets", array("cachefile" => "css.php?stylesheet=" . $sid), "sid = '" . $sid . "'", 1);
+
+    $tids = $db->simple_select("themes", "tid");
+    while ($theme = $db->fetch_array($tids)) {
+        update_theme_stylesheet_list($theme['tid']);
+    }
 }
 
 function pairview_is_installed()
@@ -120,6 +364,16 @@ function pairview_uninstall()
     }
     rebuild_settings();
 
+    $db->delete_query("templates", "title LIKE '%pairview%'");
+
+    require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
+    $db->delete_query("themestylesheets", "name = 'pairview.css'");
+    $query = $db->simple_select("themes", "tid");
+    while($theme = $db->fetch_array($query)) {
+        update_theme_stylesheet_list($theme['tid']);
+    }
+
+    rebuild_settings();
 }
 
 function pairview_activate()
@@ -140,12 +394,28 @@ function pairview_deactivate()
 function misc_pairview()
 {
 
-    global $mybb, $templates, $lang, $header, $headerinclude, $footer, $pairview_menu, $db, $chara_name, $page, $lover1, $lover2, $option, $edit, $chara_lover, $cat_select;
+    global $mybb, $templates, $lang, $header, $headerinclude, $footer, $pairview_menu, $db, $chara_name, $page, $lover1, $lover2, $option, $edit, $chara_lover, $cat_select, $cat_select_edit, $selected,   $pair_type;
 
-    //Übernehme die gespeicherte Einstellung, welche Gruppen NICHT mit ausgelesen werden soll
-    $excluded_groups = $mybb->settings['excluded_groups'];
+    //PM Handler, dass auch die Privaten Nachrichten rausgehen.
     require_once MYBB_ROOT . "inc/datahandlers/pm.php";
     $pmhandler = new PMDataHandler();
+
+    //Die Sprachdatei
+    $lang->load('pairview');
+
+    //Navigation bauen :D
+
+    switch($mybb->input['action'])
+    {
+        case "pairview_add":
+            add_breadcrumb($lang->pairview_add);
+            break;
+        case "pairview":
+            add_breadcrumb($lang->pairview);
+            break;
+    }
+
+
     //Menü
     eval("\$pairview_menu = \"" . $templates->get("pairview_menu") . "\";");
 
@@ -153,14 +423,11 @@ function misc_pairview()
      * Paare hinzugefügen
      */
 
-
     if ($mybb->get_input('action') == 'pairview_add') {
+        //Gäste sollen natürlich keine Pärchen hinzufügen können.
         if ($mybb->user['uid'] == 0) {
-            echo("Fehler");
             error_no_permission();
         }
-
-        add_breadcrumb('Pärchenübersicht', "misc.php?action=pairview_add");
 
 
         $pair_cat_setting = $mybb->settings['pairview_category'];
@@ -172,11 +439,7 @@ function misc_pairview()
 
         $charaktere = $db->query("SELECT uid, username
     FROM " . TABLE_PREFIX . "users
-    WHERE usergroup != '2'
-    and not usergroup = '4'
-    and not usergroup = '26'
-    and not usergroup = '28'
-    and additionalgroups not like '54'
+    WHERE usergroup NOT IN ('".str_replace(',', '\',\'', $mybb->settings['pairview_excluded_groups'])."')
     ORDER BY username
     ");
 
@@ -304,14 +567,6 @@ function misc_pairview()
      */
     if ($mybb->get_input('action') == 'pairview') {
 
-        add_breadcrumb('Pärchenübersicht', "misc.php?action=pairview");
-
-       /* $type = array("Ehepaar" => "Ehepaar",
-            "Verlobung" => "Verlobung",
-            "Paare" => "Paare",
-            "Affäre" => "Affäre",
-            "Zukünftiges" => "Zukünftiges");*/
-
         $pair_cat_setting = $mybb->settings['pairview_category'];
         $type = explode(", ", $pair_cat_setting);
 
@@ -323,10 +578,23 @@ function misc_pairview()
             ");
             while ($row = $db->fetch_array($select)) {
 
+                $pair_type = $row['typ'];
                 if ($mybb->usergroup['canmodcp'] == 1) {
+                    $cat_select_edit = "";
+
+                    foreach ($type as $cat){
+                        $selected = "";
+
+                        if($cat == $pair_type){
+                            $selected = "selected";
+                        }
+
+                        $cat_select_edit .= "<option {$selected}>{$cat}</option>";
+                    }
+
 
                     eval("\$edit = \"" . $templates->get("pairview_chara_edit") . "\";");
-                    $option = "<tr><td colspan='3' align='center'><a href='misc.php?action=pairview&delete=$row[pairId]'>Löschen</a> # {$edit}</td></tr>";
+                    $option = "<tr><td colspan='3' align='center'><a href='misc.php?action=pairview&delete=$row[pairId]'>{$lang->pairview_delete}</a> # {$edit}</td></tr>";
                 }
                 /*
                  * Zieh mal alle Informationen für den ersten Charakter aus der Usertabelle
@@ -366,21 +634,8 @@ function misc_pairview()
                 $gif2 = $row['gif2'];
 
                 eval("\$pairs .= \"" . $templates->get("pairview_bit_charas") . "\";");
-            }
-
-            if ($typ == 'Verlobung') {
-                $typ = "Reinblüter Verlobung";
-            }
-
-            if ($typ == 'Zukünftiges') {
-                $typ = "Zukünftige Paare";
-            }
 
 
-            if ($mybb->usergroup['canmodcp'] == 1) {
-
-                eval("\$edit = \"" . $templates->get("pairview_chara_edit") . "\";");
-                $option = "<tr><td colspan='3' align='center'><a href='misc.php?action=pairview&delete=$row[pairId]'>Löschen</a> # {$edit}</td></tr>";
             }
 
             eval("\$pair_bit .= \"" . $templates->get("pairview_chara_bit") . "\";");
@@ -396,14 +651,19 @@ function misc_pairview()
         if (isset($mybb->input['edit'])) {
             $pairId = $mybb->input['pairId'];
             $typ = $mybb->input['typ'];
+            $lover1 = (int)$mybb->input['lover1'];
+            $lover2 = (int)$mybb->input['lover2'];
             $gif1 = $mybb->input['gif1'];
             $gif2 = $mybb->input['gif2'];
 
             $edit_pair = array(
                 "typ" => $typ,
+                "lover1" => $lover1,
+                "lover2" => $lover2,
                 "gif1" => $gif1,
                 "gif2" => $gif2
             );
+
 
             $db->update_query("pairs", $edit_pair, "pairId='{$pairId}'");
             redirect("misc.php?action=pairview");
@@ -415,7 +675,7 @@ function misc_pairview()
     }
 }
 
-    //wer ist wo
+//wer ist wo
 $plugins->add_hook('fetch_wol_activity_end', 'pairview_user_activity');
 $plugins->add_hook('build_friendly_wol_location_end', 'pairview_location_activity');
 
