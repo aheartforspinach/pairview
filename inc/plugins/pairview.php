@@ -256,15 +256,15 @@ function pairview_install()
         'template' => $db->escape_string('<table width="100%">
 	<tr>
 		<td class="tcat">
-			<h1>
-				Menü
-			</h1>
+			<strong>
+			{$lang->pairview_menu}
+			</strong>
 		</td></tr>
 	<tr><td class="trow1">
-	<div class="love_menu">	<i class="fas fa-th-list"></i> <a href="misc.php?action=pairview">Pärchenübersicht</a></div>
+	<div class="love_menu">	<i class="fas fa-th-list"></i> <a href="misc.php?action=pairview">{$lang->pairview}</a></div>
 		</td></tr>
 	<tr><td class="trow2">
-	<div class="love_menu"><i class="fas fa-folder-plus"></i>	<a href="misc.php?action=pairview_add">Pärchen hinzufügen</a></div>
+	<div class="love_menu"><i class="fas fa-folder-plus"></i>	<a href="misc.php?action=pairview_add">{$lang->pairview_add}</a></div>
 		</td></tr>
 </table>'),
         'sid' => '-1',
@@ -614,6 +614,10 @@ function misc_pairview()
                 } else {
                     $age1 = "k/A";
                 }
+
+
+
+
                 /*
                  * Zieh mal alle Informationen für den zweiten Charakter aus der Usertabelle
                  */
