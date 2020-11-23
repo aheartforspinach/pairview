@@ -4,6 +4,10 @@ misc.php?action=pairview
 ### neue DB
 pairs
 
+###Daten
+inc/plugins/pairview.php
+inc/language/deutsch_du bzw. deutsch_sie
+
 ### neue Templates
 pairview 	
 pairview_add 
