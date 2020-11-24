@@ -476,7 +476,7 @@ function misc_pairview()
 
             if($lover1 == $mybb->user['uid']) {
                 $pm_change = array(
-                    "subject" => "Unser (geplantes) Pairing wurde eingetagen",
+                    "subject" => "Unser (geplantes) Pairing wurde eingetragen",
                     "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
                     //From: Wer schreibt die PN
                     "fromid" => $lover1,
@@ -492,7 +492,7 @@ function misc_pairview()
                 }
             }elseif($lover2 == $mybb->user['uid']){
                 $pm_change = array(
-                    "subject" => "Unser (geplantes) Pairing wurde eingetagen",
+                    "subject" => "Unser (geplantes) Pairing wurde eingetragen",
                     "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
                     //From: Wer schreibt die PN
                     "fromid" => $lover2,
@@ -516,7 +516,7 @@ function misc_pairview()
                 foreach ($lover_array as $lover => $lover_uid){
 
                     $pm_change = array(
-                        "subject" => "Das (geplante) Pairing wurde eingetagen",
+                        "subject" => "Das (geplante) Pairing wurde eingetragen",
                         "message" => "Ich habe ein Pairing in die Übersicht für dich und deinem Pairingpartner eingetragen. <br /> Es handelt sich um die Charaktere <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie <i>{$typ}</i>. Ich hoffe, es ist für dich in Ordnung. <br /> Du kannst es dir <a href='misc.php?action=pairview'>hier</a> ansehen.",
                         //From: Wer schreibt die PN
                         "fromid" => $mybb->user['uid'],
