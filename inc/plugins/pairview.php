@@ -199,7 +199,7 @@ function pairview_install()
 
     $insert_array = array(
         'title' => 'pairview_chara_edit',
-        'template' => $db->escape_string('<style>.infopop { position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: hsla(0, 0%, 0%, 0.5); z-index: 1; opacity:0; -webkit-transition: .5s ease-in-out; -moz-transition: .5s ease-in-out; transition: .5s ease-in-out; pointer-events: none; } .infopop:target { opacity:1; pointer-events: auto; } .infopop > .pop { width: 350px; position: relative; margin: 10% auto; padding: 25px; z-index: 3; } .closepop { position: absolute; right: -5px; top:-5px; width: 100%; height: 100%; z-index: 2; }</style>
+        'template' => $db->escape_string('<style>.infopop { position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: hsla(0, 0%, 0%, 0.5); z-index: 1; opacity:0; -webkit-transition: .5s ease-in-out; -moz-transition: .5s ease-in-out; transition: .5s ease-in-out; pointer-events: none; } .infopop:target { opacity:1; pointer-events: auto; } .infopop > .pop { width: 300px; position: relative; margin: 10% auto; padding: 25px; z-index: 3; } .closepop { position: absolute; right: -5px; top:-5px; width: 100%; height: 100%; z-index: 2; }</style>
 <div id="popinfo$row[pairId]" class="infopop">
   <div class="pop"><form action="misc.php?action=pairview" id="pair_edit"  method="post">
 	  <input type="hidden" name="pairId" id="pairId" value="{$row[\'pairId\']}" />
@@ -476,7 +476,7 @@ function misc_pairview()
 
             if($lover1 == $mybb->user['uid']) {
                 $pm_change = array(
-                    "subject" => "Unser (geplantes) Pairing wurde eingetragen",
+                    "subject" => "Unser (geplantes) Pairing wurde eingetagen",
                     "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
                     //From: Wer schreibt die PN
                     "fromid" => $lover1,
@@ -492,7 +492,7 @@ function misc_pairview()
                 }
             }elseif($lover2 == $mybb->user['uid']){
                 $pm_change = array(
-                    "subject" => "Unser (geplantes) Pairing wurde eingetragen",
+                    "subject" => "Unser (geplantes) Pairing wurde eingetagen",
                     "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
                     //From: Wer schreibt die PN
                     "fromid" => $lover2,
@@ -516,7 +516,7 @@ function misc_pairview()
                 foreach ($lover_array as $lover => $lover_uid){
 
                     $pm_change = array(
-                        "subject" => "Das (geplante) Pairing wurde eingetragen",
+                        "subject" => "Das (geplante) Pairing wurde eingetagen",
                         "message" => "Ich habe ein Pairing in die Übersicht für dich und deinem Pairingpartner eingetragen. <br /> Es handelt sich um die Charaktere <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie <i>{$typ}</i>. Ich hoffe, es ist für dich in Ordnung. <br /> Du kannst es dir <a href='misc.php?action=pairview'>hier</a> ansehen.",
                         //From: Wer schreibt die PN
                         "fromid" => $mybb->user['uid'],
@@ -579,17 +579,19 @@ function misc_pairview()
             while ($row = $db->fetch_array($select)) {
 
                 $pair_type = $row['typ'];
-                if ($mybb->usergroup['canmodcp'] == 1) {
+                if ($mybb->usergroup['canmodcp'] == 1 OR $row['lover1'] == $mybb->user['uid'] OR  $row['lover2'] == $mybb->user['uid']) {
                     $cat_select_edit = "";
 
                     foreach ($type as $cat){
-                        $selected = "";
+
 
                         if($cat == $pair_type){
-                            $selected = "selected";
+                            $cat_select_edit .= "<option selected>{$cat}</option>";
+                        } else{
+                            $cat_select_edit .= "<option>{$cat}</option>";
                         }
 
-                        $cat_select_edit .= "<option {$selected}>{$cat}</option>";
+
                     }
 
 
@@ -614,10 +616,6 @@ function misc_pairview()
                 } else {
                     $age1 = "k/A";
                 }
-
-
-
-
                 /*
                  * Zieh mal alle Informationen für den zweiten Charakter aus der Usertabelle
                  */
