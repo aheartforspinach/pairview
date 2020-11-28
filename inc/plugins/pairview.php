@@ -577,11 +577,11 @@ function misc_pairview()
             where typ LIKE '%$typ%'
             ");
             while ($row = $db->fetch_array($select)) {
-
+		$option = "";
                 $pair_type = $row['typ'];
                 if ($mybb->usergroup['canmodcp'] == 1 OR $row['lover1'] == $mybb->user['uid'] OR  $row['lover2'] == $mybb->user['uid']) {
                     $cat_select_edit = "";
-
+			
                     foreach ($type as $cat){
 
 
