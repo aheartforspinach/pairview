@@ -556,18 +556,7 @@ function misc_pairview()
                         $pmhandler->insert_pm();
                     }
                 }
-                $new_pair = array(
-                    "typ" => $typ,
-                    "lover1" => $lover1,
-                    "gif1" => $gif1,
-                    "lover2" => $lover2,
-                    "gif2" => $gif2,
-                );
-
-                $db->insert_query("pairs", $new_pair);
-                redirect("misc.php?action=pairview_add");
-
-
+              
             }
 
 
