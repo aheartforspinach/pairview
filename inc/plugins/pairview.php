@@ -430,13 +430,19 @@ function misc_pairview()
         }
 
 
+
+        //Alle Kategorien auslesen, welche man im ACP angegeben hat und ins Dropdown Menü packen
         $pair_cat_setting = $mybb->settings['pairview_category'];
         $pair_cat = explode(", ", $pair_cat_setting);
         foreach ($pair_cat as $cat){
             $cat_select .= "<option value='{$cat}'>{$cat}</option>";
         }
 
-
+        /*
+        * alle Charaktere auslesen, welche die Möglichkeit haben, ein Pärchen zu bilden. Im ACP können die Gruppen ausgeschlossen werden, welche nicht mitmachen dürfen. 
+        * Die Armen...
+        */
+        
         $charaktere = $db->query("SELECT uid, username
     FROM " . TABLE_PREFIX . "users
     WHERE usergroup NOT IN ('".str_replace(',', '\',\'', $mybb->settings['pairview_excluded_groups'])."')
@@ -448,6 +454,10 @@ function misc_pairview()
             $chara_name .= "<option value='{$pair['uid']}'>{$pair['username']}</option>";
         }
 
+        /*
+         * Hier werden nun alle Pärchen ins System eingespeichert.
+         * Wir möchten sie ja angezeigt bekommen
+         */
 
         if ($mybb->user['uid'] == 0) {
             //  error_no_permission();
@@ -474,6 +484,12 @@ function misc_pairview()
             $love_name2 = $db->fetch_array($query2);
             $lover_name2 = $love_name2['username'];
 
+            
+            /*
+             * Hat Partner 1 das Pärchen eingetragen, bekommt Partner 2 die Nachricht, dass sie eingetragen wurde.
+             * soll ja bescheid wissen, das er nun für immer da gefangen ist. Oder so ähnlich
+             */
+            
             if($lover1 == $mybb->user['uid']) {
                 $pm_change = array(
                     "subject" => "Unser (geplantes) Pairing wurde eingetagen",
@@ -490,6 +506,11 @@ function misc_pairview()
                 else {
                     $pmhandler->insert_pm();
                 }
+                
+                /*
+                 * Gleiches Spiel wenn es Partner 2 ist. Nun bekannt Parnter 1 die Private nachricht und die Hiobsbotschaft. 
+                 * Du weißt schon... 
+                 */
             }elseif($lover2 == $mybb->user['uid']){
                 $pm_change = array(
                     "subject" => "Unser (geplantes) Pairing wurde eingetagen",
@@ -508,6 +529,10 @@ function misc_pairview()
                 }
             } else{
 
+                /*
+                 * Und wenn jemand so frech... natürlich mein ich nett, war die Pärchen für die zwei Partner einzutragen, dann bekommen beide Parte eine Private Nachricht vom Eintrager.
+                 * Ist vor allem dann gut, wenn das Team Pärchen im Auftrag einträgt und so beide Parteien von ihren Glück informiert werden.
+                 */
                 $lover_array = array(
                     "lover1" => $lover1,
                     "lover2" => $lover2
@@ -577,11 +602,12 @@ function misc_pairview()
             where typ LIKE '%$typ%'
             ");
             while ($row = $db->fetch_array($select)) {
-		$option = "";
+
                 $pair_type = $row['typ'];
+                // Sowohl das Team, als auch Partner 1 und 2 können die Eintragungen nachträglich ändern
                 if ($mybb->usergroup['canmodcp'] == 1 OR $row['lover1'] == $mybb->user['uid'] OR  $row['lover2'] == $mybb->user['uid']) {
                     $cat_select_edit = "";
-			
+
                     foreach ($type as $cat){
 
 
