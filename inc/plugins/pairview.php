@@ -15,7 +15,7 @@ function pairview_info()
 {
     return array(
         "name"			=> "Pärchenübersicht",
-        "descrpvtion"	=> "Hier können alle Pärchenübersicht erstellt werden, so dass alle User eine schnelle Übersicht haben, wer mit wem Angebandelt hat oder dies in Zukunft tun wird.",
+        "description"	=> "Hier können alle Pärchenübersicht erstellt werden, so dass alle User eine schnelle Übersicht haben, wer mit wem Angebandelt hat oder dies in Zukunft tun wird.",
         "website"		=> "",
         "author"		=> "Ales",
         "authorsite"	=> "",
@@ -53,7 +53,7 @@ function pairview_install()
     $setting_group = array(
         'name' => 'pairview',
         'title' => 'Pärchenübersicht',
-        'descrpvtion' => 'Einstellung für die Pärchenübersicht',
+        'description' => 'Einstellung für die Pärchenübersicht',
         'disporder' => 5, // The order your setting group will display
         'isdefault' => 0
     );
@@ -64,7 +64,7 @@ function pairview_install()
         // A text setting
         'pairview_excluded_groups' => array(
             'title' => 'Ausgeschlossene Gruppen',
-            'descrpvtion' => 'Welche Gruppen sollen nicht mit ausgelesen werden?',
+            'description' => 'Welche Gruppen sollen nicht mit ausgelesen werden?',
             'optionscode' => 'groupselect',
             'value' => '2,4', // Default
             'disporder' => 1
@@ -72,7 +72,7 @@ function pairview_install()
         // A text setting
         'pairview_category' => array(
             'title' => 'Kategorien',
-            'descrpvtion' => 'Welche Kategorien soll es geben?',
+            'description' => 'Welche Kategorien soll es geben?',
             'optionscode' => 'text',
             'value' => 'Verheiratet, Verlobt, Beziehung, Affäre, Zukünftig', // Default
             'disporder' => 2
@@ -557,7 +557,7 @@ function misc_pairview()
                     }
                 }
             }
-            
+
             $new_pair = array(
                 "typ" => $typ,
                 "lover1" => $lover1,
@@ -704,7 +704,7 @@ if ($mybb->get_input('action') == 'pairview') {
     // Using the misc_help template for the page wrapper
     eval("\$page = \"" . $templates->get("pairview") . "\";");
     output_page($page);
-}
+
 }
 
 //wer ist wo
