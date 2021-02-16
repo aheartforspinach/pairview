@@ -46,6 +46,8 @@ function pairview_install()
 
     }
 
+    //Wann wurde die Meldung für einen bestimmten Charakter ausgeblendet? (0 Meldung wird angezeigt, 1 Meldung nicht anzeigen.)
+    $db->add_column("users", "pairview_pn", "INT(10) DEFAULT NULL");
     //einstellung
 
     $setting_group = array(
@@ -273,6 +275,23 @@ function pairview_install()
     );
     $db->insert_query("templates", $insert_array);
 
+
+    $insert_array = array(
+        'title' => 'pairview_pn_usercp',
+        'template' => $db->escape_string('<tr>
+<td valign="top"><input type="checkbox" class="checkbox" name="pairview_pn" id="pairview_pn" value="1" {$pn_check} /></td>
+<td><span class="smalltext"><label for="pairview_pn">{$lang->pairviewpn}</label></span></td>
+</tr>
+<tr>
+<td valign="top"><input type="checkbox" class="checkbox" name="pairview_pn_all" id="pairview_pn_all" value="1" /></td>
+<td><span class="smalltext"><label for="pairview_pn_all">{$lang->pairviewpn_all}</label></span></td>
+</tr>'),
+        'sid' => '-1',
+        'version' => '',
+        'dateline' => TIME_NOW
+    );
+    $db->insert_query("templates", $insert_array);
+
     //CSS einfügen
     $css = array(
         'name' => 'pairview.css',
@@ -430,19 +449,13 @@ function misc_pairview()
         }
 
 
-
-        //Alle Kategorien auslesen, welche man im ACP angegeben hat und ins Dropdown Menü packen
         $pair_cat_setting = $mybb->settings['pairview_category'];
         $pair_cat = explode(", ", $pair_cat_setting);
         foreach ($pair_cat as $cat){
             $cat_select .= "<option value='{$cat}'>{$cat}</option>";
         }
 
-        /*
-        * alle Charaktere auslesen, welche die Möglichkeit haben, ein Pärchen zu bilden. Im ACP können die Gruppen ausgeschlossen werden, welche nicht mitmachen dürfen. 
-        * Die Armen...
-        */
-        
+
         $charaktere = $db->query("SELECT uid, username
     FROM " . TABLE_PREFIX . "users
     WHERE usergroup NOT IN ('".str_replace(',', '\',\'', $mybb->settings['pairview_excluded_groups'])."')
@@ -454,10 +467,6 @@ function misc_pairview()
             $chara_name .= "<option value='{$pair['uid']}'>{$pair['username']}</option>";
         }
 
-        /*
-         * Hier werden nun alle Pärchen ins System eingespeichert.
-         * Wir möchten sie ja angezeigt bekommen
-         */
 
         if ($mybb->user['uid'] == 0) {
             //  error_no_permission();
@@ -484,12 +493,6 @@ function misc_pairview()
             $love_name2 = $db->fetch_array($query2);
             $lover_name2 = $love_name2['username'];
 
-            
-            /*
-             * Hat Partner 1 das Pärchen eingetragen, bekommt Partner 2 die Nachricht, dass sie eingetragen wurde.
-             * soll ja bescheid wissen, das er nun für immer da gefangen ist. Oder so ähnlich
-             */
-            
             if($lover1 == $mybb->user['uid']) {
                 $pm_change = array(
                     "subject" => "Unser (geplantes) Pairing wurde eingetagen",
@@ -506,12 +509,7 @@ function misc_pairview()
                 else {
                     $pmhandler->insert_pm();
                 }
-                
-                /*
-                 * Gleiches Spiel wenn es Partner 2 ist. Nun bekannt Parnter 1 die Private nachricht und die Hiobsbotschaft. 
-                 * Du weißt schon... 
-                 */
-            }elseif($lover2 == $mybb->user['uid']){
+            }elseif($lover2 == $mybb->user['uid']) {
                 $pm_change = array(
                     "subject" => "Unser (geplantes) Pairing wurde eingetagen",
                     "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
@@ -521,18 +519,15 @@ function misc_pairview()
                     "toid" => $lover1
                 );
                 // $pmhandler->admin_override = true;
-                $pmhandler->set_data($pm_change);
-                if (!$pmhandler->validate_pm())
+                $pmhandler->set_data ($pm_change);
+                if (!$pmhandler->validate_pm ())
                     return false;
                 else {
-                    $pmhandler->insert_pm();
+                    $pmhandler->insert_pm ();
                 }
+            }
             } else{
 
-                /*
-                 * Und wenn jemand so frech... natürlich mein ich nett, war die Pärchen für die zwei Partner einzutragen, dann bekommen beide Parte eine Private Nachricht vom Eintrager.
-                 * Ist vor allem dann gut, wenn das Team Pärchen im Auftrag einträgt und so beide Parteien von ihren Glück informiert werden.
-                 */
                 $lover_array = array(
                     "lover1" => $lover1,
                     "lover2" => $lover2
@@ -556,7 +551,18 @@ function misc_pairview()
                         $pmhandler->insert_pm();
                     }
                 }
-              
+                $new_pair = array(
+                    "typ" => $typ,
+                    "lover1" => $lover1,
+                    "gif1" => $gif1,
+                    "lover2" => $lover2,
+                    "gif2" => $gif2,
+                );
+
+                $db->insert_query("pairs", $new_pair);
+                redirect("misc.php?action=pairview_add");
+
+
             }
 
 
@@ -587,13 +593,15 @@ function misc_pairview()
         foreach ($type as $typ) {
             $pairs = '';
             $select = $db->query("SELECT *
-            FROM " . TABLE_PREFIX . "pairs
+            FROM " . TABLE_PREFIX . "pairs p
+            left join " . TABLE_PREFIX . "users u
+            on (u.uid = p.lover1)
             where typ LIKE '%$typ%'
+            order by username ASC
             ");
             while ($row = $db->fetch_array($select)) {
 
                 $pair_type = $row['typ'];
-                // Sowohl das Team, als auch Partner 1 und 2 können die Eintragungen nachträglich ändern
                 if ($mybb->usergroup['canmodcp'] == 1 OR $row['lover1'] == $mybb->user['uid'] OR  $row['lover2'] == $mybb->user['uid']) {
                     $cat_select_edit = "";
 
@@ -735,4 +743,52 @@ function pairview_user_delete()
 {
     global $db, $cache, $mybb, $user, $profile_fields;
     $db->delete_query('pairs', "lover1 = " . (int)$user['uid'] . " OR lover2 = " . (int)$user['uid'] . " ");
+}
+
+$plugins->add_hook('usercp_options_start', 'ip_edit_options');
+function ip_edit_options() {
+    global $db, $mybb, $templates, $pn_check, $tracker_pn, $pn_check_all ;
+    //Die Sprachdatei
+    $lang->load('pairview');
+	
+    $ip_pn = $mybb->user['pairview_pn'];
+    $ip_pn_all = $mybb->user['pairview_pn_all'];
+    $pn_check = '';
+    if($ip_pn == 1){
+        $pn_check = 'checked="checked"';
+    }
+    if($ip_pn_all == 1){
+        $pn_check_all = 'checked="checked"';
+    }
+
+    eval("\$tracker_pn .=\"".$templates->get("pairview_pn_usercp")."\";");
+}
+
+//User CP: änderungen im ucp speichern
+//bei Wunsch des Users, Einstellung für alle Charaktere übernehmen
+$plugins->add_hook('usercp_do_options_start', 'ip_edit_options_do');
+function ip_edit_options_do() {
+    global $mybb, $db, $templates;
+    //Was hat der User eingestellt?
+    $ip_pn = $mybb->get_input('pairview_pn', MyBB::INPUT_INT);
+    $ip_pn_all = $mybb->input['pairview_pn_all'];
+
+    //Wer ist online, Wer ist Hauptaccount.
+    $this_user = intval($mybb->user['uid']);
+    $as_uid = intval($mybb->user['as_uid']);
+//Soll für alle Charaktere übernommen werden oder nicht?
+    if($ip_pn_all == 1) {
+        //Ja, alle raussuchen
+        if($as_uid == 0) {
+            $id = intval($mybb->user['uid']);
+        } else {
+            $id = intval($mybb->user['as_uid']);
+        }
+        //speichern
+        $db->query("UPDATE ".TABLE_PREFIX."users SET pairview_pn=".$ip_pn." WHERE uid=".$id." OR as_uid=".$id."");
+
+    } else {
+        //nur für aktuellen Charakter speichern
+        $db->query("UPDATE ".TABLE_PREFIX."users SET pairview_pn=".$ip_pn." WHERE uid=".$this_user."");
+    }
 }
