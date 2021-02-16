@@ -448,24 +448,24 @@ function misc_pairview()
     if ($mybb->get_input('action') == 'pairview_add') {
         //Gäste sollen natürlich keine Pärchen hinzufügen können.
         if ($mybb->user['uid'] == 0) {
-            error_no_permission();
+            error_no_permission ();
         }
 
 
         $pair_cat_setting = $mybb->settings['pairview_category'];
-        $pair_cat = explode(", ", $pair_cat_setting);
-        foreach ($pair_cat as $cat){
+        $pair_cat = explode (", ", $pair_cat_setting);
+        foreach ($pair_cat as $cat) {
             $cat_select .= "<option value='{$cat}'>{$cat}</option>";
         }
 
 
-        $charaktere = $db->query("SELECT uid, username
+        $charaktere = $db->query ("SELECT uid, username
     FROM " . TABLE_PREFIX . "users
-    WHERE usergroup NOT IN ('".str_replace(',', '\',\'', $mybb->settings['pairview_excluded_groups'])."')
+    WHERE usergroup NOT IN ('" . str_replace (',', '\',\'', $mybb->settings['pairview_excluded_groups']) . "')
     ORDER BY username
     ");
 
-        while ($pair = $db->fetch_array($charaktere)) {
+        while ($pair = $db->fetch_array ($charaktere)) {
 
             $chara_name .= "<option value='{$pair['uid']}'>{$pair['username']}</option>";
         }
@@ -555,8 +555,23 @@ function misc_pairview()
                             $pmhandler->insert_pm ();
                         }
                     }
+
                 }
+
+                $new_pair = array(
+                    "typ" => $typ,
+                    "lover1" => $lover1,
+                    "gif1" => $gif1,
+                    "lover2" => $lover2,
+                    "gif2" => $gif2,
+                );
+
+                $db->insert_query ("pairs", $new_pair);
+                redirect ("misc.php?action=pairview_add");
+
+
             }
+
 
             $new_pair = array(
                 "typ" => $typ,
@@ -566,28 +581,13 @@ function misc_pairview()
                 "gif2" => $gif2,
             );
 
-            $db->insert_query("pairs", $new_pair);
-            redirect("misc.php?action=pairview_add");
-
-
+            $db->insert_query ("pairs", $new_pair);
+            redirect ("misc.php?action=pairview_add");
         }
-
-
-        $new_pair = array(
-            "typ" => $typ,
-            "lover1" => $lover1,
-            "gif1" => $gif1,
-            "lover2" => $lover2,
-            "gif2" => $gif2,
-        );
-
-        $db->insert_query("pairs", $new_pair);
-        redirect("misc.php?action=pairview_add");
+        // Using the misc_help template for the page wrapper
+        eval("\$page = \"" . $templates->get ("pairview_add") . "\";");
+        output_page ($page);
     }
-    // Using the misc_help template for the page wrapper
-    eval("\$page = \"" . $templates->get("pairview_add") . "\";");
-    output_page($page);
-}
 
 /*
  * Paare auslesen
