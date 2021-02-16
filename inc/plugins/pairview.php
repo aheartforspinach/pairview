@@ -15,7 +15,7 @@ function pairview_info()
 {
     return array(
         "name"			=> "Pärchenübersicht",
-        "description"	=> "Hier können alle Pärchenübersicht erstellt werden, so dass alle User eine schnelle Übersicht haben, wer mit wem Angebandelt hat oder dies in Zukunft tun wird.",
+        "descrpvtion"	=> "Hier können alle Pärchenübersicht erstellt werden, so dass alle User eine schnelle Übersicht haben, wer mit wem Angebandelt hat oder dies in Zukunft tun wird.",
         "website"		=> "",
         "author"		=> "Ales",
         "authorsite"	=> "",
@@ -53,7 +53,7 @@ function pairview_install()
     $setting_group = array(
         'name' => 'pairview',
         'title' => 'Pärchenübersicht',
-        'description' => 'Einstellung für die Pärchenübersicht',
+        'descrpvtion' => 'Einstellung für die Pärchenübersicht',
         'disporder' => 5, // The order your setting group will display
         'isdefault' => 0
     );
@@ -64,7 +64,7 @@ function pairview_install()
         // A text setting
         'pairview_excluded_groups' => array(
             'title' => 'Ausgeschlossene Gruppen',
-            'description' => 'Welche Gruppen sollen nicht mit ausgelesen werden?',
+            'descrpvtion' => 'Welche Gruppen sollen nicht mit ausgelesen werden?',
             'optionscode' => 'groupselect',
             'value' => '2,4', // Default
             'disporder' => 1
@@ -72,7 +72,7 @@ function pairview_install()
         // A text setting
         'pairview_category' => array(
             'title' => 'Kategorien',
-            'description' => 'Welche Kategorien soll es geben?',
+            'descrpvtion' => 'Welche Kategorien soll es geben?',
             'optionscode' => 'text',
             'value' => 'Verheiratet, Verlobt, Beziehung, Affäre, Zukünftig', // Default
             'disporder' => 2
@@ -474,86 +474,90 @@ function misc_pairview()
         if ($mybb->user['uid'] == 0) {
             //  error_no_permission();
         } elseif ($_POST['add']) {
-            $typ = $db->escape_string($_POST['typ']);
-            $lover1 = $db->escape_string($_POST['lover1']);
-            $gif1 = $db->escape_string($_POST['gif1']);
-            $lover2 = $db->escape_string($_POST['lover2']);
-            $gif2 = $db->escape_string($_POST['gif2']);
+            $typ = $db->escape_string ($_POST['typ']);
+            $lover1 = $db->escape_string ($_POST['lover1']);
+            $gif1 = $db->escape_string ($_POST['gif1']);
+            $lover2 = $db->escape_string ($_POST['lover2']);
+            $gif2 = $db->escape_string ($_POST['gif2']);
 
             // Eine PN Versenden, um den Gegenpart zu informieren
-            $query1 = $db->query("SELECT username
-                    from ".TABLE_PREFIX."users
-                    where uid = ".$lover1."
+            $query1 = $db->query ("SELECT username
+                    from " . TABLE_PREFIX . "users
+                    where uid = " . $lover1 . "
                     ");
 
-            $love_name1 = $db->fetch_array($query1);
+            $love_name1 = $db->fetch_array ($query1);
             $lover_name1 = $love_name1['username'];
 
-            $query2 = $db->query("SELECT username
-                    from ".TABLE_PREFIX."users
-                    where uid = ".$lover2."
+            $query2 = $db->query ("SELECT username
+                    from " . TABLE_PREFIX . "users
+                    where uid = " . $lover2 . "
                     ");
-            $love_name2 = $db->fetch_array($query2);
+            $love_name2 = $db->fetch_array ($query2);
             $lover_name2 = $love_name2['username'];
 
-            if($lover1 == $mybb->user['uid']) {
-                $pm_change = array(
-                    "subject" => "Unser (geplantes) Pairing wurde eingetagen",
-                    "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
-                    //From: Wer schreibt die PN
-                    "fromid" => $lover1,
-                    //to: an wen geht die pn
-                    "toid" => $lover2
-                );
-                // $pmhandler->admin_override = true;
-                $pmhandler->set_data($pm_change);
-                if (!$pmhandler->validate_pm())
-                    return false;
-                else {
-                    $pmhandler->insert_pm();
-                }
-            }elseif($lover2 == $mybb->user['uid']) {
-                $pm_change = array(
-                    "subject" => "Unser (geplantes) Pairing wurde eingetagen",
-                    "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
-                    //From: Wer schreibt die PN
-                    "fromid" => $lover2,
-                    //to: an wen geht die pn
-                    "toid" => $lover1
-                );
-                // $pmhandler->admin_override = true;
-                $pmhandler->set_data ($pm_change);
-                if (!$pmhandler->validate_pm ())
-                    return false;
-                else {
-                    $pmhandler->insert_pm ();
+            if ($mybb->user['pairview_pn'] == 0) {
+                if ($lover1 == $mybb->user['uid']) {
+                    $pm_change = array(
+                        "subject" => "Unser (geplantes) Pairing wurde eingetagen",
+                        "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
+                        //From: Wer schreibt die PN
+                        "fromid" => $lover1,
+                        //to: an wen geht die pn
+                        "toid" => $lover2
+                    );
+                    // $pmhandler->admin_override = true;
+                    $pmhandler->set_data ($pm_change);
+                    if (!$pmhandler->validate_pm ())
+                        return false;
+                    else {
+                        $pmhandler->insert_pm ();
+                    }
+                } elseif ($lover2 == $mybb->user['uid']) {
+                    $pm_change = array(
+                        "subject" => "Unser (geplantes) Pairing wurde eingetagen",
+                        "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
+                        //From: Wer schreibt die PN
+                        "fromid" => $lover2,
+                        //to: an wen geht die pn
+                        "toid" => $lover1
+                    );
+                    // $pmhandler->admin_override = true;
+                    $pmhandler->set_data ($pm_change);
+                    if (!$pmhandler->validate_pm ())
+                        return false;
+                    else {
+                        $pmhandler->insert_pm ();
+                    }
+
+                } else {
+
+                    $lover_array = array(
+                        "lover1" => $lover1,
+                        "lover2" => $lover2
+                    );
+
+                    foreach ($lover_array as $lover => $lover_uid) {
+
+                        $pm_change = array(
+                            "subject" => "Das (geplante) Pairing wurde eingetagen",
+                            "message" => "Ich habe ein Pairing in die Übersicht für dich und deinem Pairingpartner eingetragen. <br /> Es handelt sich um die Charaktere <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie <i>{$typ}</i>. Ich hoffe, es ist für dich in Ordnung. <br /> Du kannst es dir <a href='misc.php?action=pairview'>hier</a> ansehen.",
+                            //From: Wer schreibt die PN
+                            "fromid" => $mybb->user['uid'],
+                            //to: an wen geht die pn
+                            "toid" => $lover_uid
+                        );
+                        // $pmhandler->admin_override = true;
+                        $pmhandler->set_data ($pm_change);
+                        if (!$pmhandler->validate_pm ())
+                            return false;
+                        else {
+                            $pmhandler->insert_pm ();
+                        }
+                    }
                 }
             }
-        } else{
-
-            $lover_array = array(
-                "lover1" => $lover1,
-                "lover2" => $lover2
-            );
-
-            foreach ($lover_array as $lover => $lover_uid){
-
-                $pm_change = array(
-                    "subject" => "Das (geplante) Pairing wurde eingetagen",
-                    "message" => "Ich habe ein Pairing in die Übersicht für dich und deinem Pairingpartner eingetragen. <br /> Es handelt sich um die Charaktere <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie <i>{$typ}</i>. Ich hoffe, es ist für dich in Ordnung. <br /> Du kannst es dir <a href='misc.php?action=pairview'>hier</a> ansehen.",
-                    //From: Wer schreibt die PN
-                    "fromid" => $mybb->user['uid'],
-                    //to: an wen geht die pn
-                    "toid" => $lover_uid
-                );
-                // $pmhandler->admin_override = true;
-                $pmhandler->set_data($pm_change);
-                if (!$pmhandler->validate_pm())
-                    return false;
-                else {
-                    $pmhandler->insert_pm();
-                }
-            }
+            
             $new_pair = array(
                 "typ" => $typ,
                 "lover1" => $lover1,
@@ -748,19 +752,19 @@ function pairview_user_delete()
     $db->delete_query('pairs', "lover1 = " . (int)$user['uid'] . " OR lover2 = " . (int)$user['uid'] . " ");
 }
 
-$plugins->add_hook('usercp_options_start', 'ip_edit_options');
-function ip_edit_options() {
+$plugins->add_hook('usercp_options_start', 'pv_edit_options');
+function pv_edit_options() {
     global $db, $mybb, $templates, $pn_check, $pairview_pn, $pn_check_all, $lang ;
     //Die Sprachdatei
     $lang->load('pairview');
 
-    $ip_pn = $mybb->user['pairview_pn'];
-    $ip_pn_all = $mybb->user['pairview_pn_all'];
+    $pv_pn = $mybb->user['pairview_pn'];
+    $pv_pn_all = $mybb->user['pairview_pn_all'];
     $pn_check = '';
-    if($ip_pn == 1){
+    if($pv_pn == 1){
         $pn_check = 'checked="checked"';
     }
-    if($ip_pn_all == 1){
+    if($pv_pn_all == 1){
         $pn_check_all = 'checked="checked"';
     }
 
@@ -769,18 +773,18 @@ function ip_edit_options() {
 
 //User CP: änderungen im ucp speichern
 //bei Wunsch des Users, Einstellung für alle Charaktere übernehmen
-$plugins->add_hook('usercp_do_options_start', 'ip_edit_options_do');
-function ip_edit_options_do() {
+$plugins->add_hook('usercp_do_options_start', 'pv_edit_options_do');
+function pv_edit_options_do() {
     global $mybb, $db, $templates;
     //Was hat der User eingestellt?
-    $ip_pn = $mybb->get_input('pairview_pn', MyBB::INPUT_INT);
-    $ip_pn_all = $mybb->input['pairview_pn_all'];
+    $pv_pn = $mybb->get_input('pairview_pn', MyBB::INPUT_INT);
+    $pv_pn_all = $mybb->input['pairview_pn_all'];
 
     //Wer ist online, Wer ist Hauptaccount.
     $this_user = intval($mybb->user['uid']);
     $as_uid = intval($mybb->user['as_uid']);
 //Soll für alle Charaktere übernommen werden oder nicht?
-    if($ip_pn_all == 1) {
+    if($pv_pn_all == 1) {
         //Ja, alle raussuchen
         if($as_uid == 0) {
             $id = intval($mybb->user['uid']);
@@ -788,10 +792,10 @@ function ip_edit_options_do() {
             $id = intval($mybb->user['as_uid']);
         }
         //speichern
-        $db->query("UPDATE ".TABLE_PREFIX."users SET pairview_pn=".$ip_pn." WHERE uid=".$id." OR as_uid=".$id."");
+        $db->query("UPDATE ".TABLE_PREFIX."users SET pairview_pn=".$pv_pn." WHERE uid=".$id." OR as_uid=".$id."");
 
     } else {
         //nur für aktuellen Charakter speichern
-        $db->query("UPDATE ".TABLE_PREFIX."users SET pairview_pn=".$ip_pn." WHERE uid=".$this_user."");
+        $db->query("UPDATE ".TABLE_PREFIX."users SET pairview_pn=".$pv_pn." WHERE uid=".$this_user."");
     }
 }
