@@ -416,36 +416,35 @@ function pairview_deactivate()
 function misc_pairview()
 {
 
-    global $mybb, $templates, $lang, $header, $headerinclude, $footer, $pairview_menu, $db, $chara_name, $page, $lover1, $lover2, $option, $edit, $chara_lover, $cat_select, $cat_select_edit, $selected,   $pair_type;
+    global $mybb, $templates, $lang, $header, $headerinclude, $footer, $pairview_menu, $db, $chara_name, $page, $lover1, $lover2, $option, $edit, $chara_lover, $cat_select, $cat_select_edit, $selected, $pair_type;
 
     //PM Handler, dass auch die Privaten Nachrichten rausgehen.
     require_once MYBB_ROOT . "inc/datahandlers/pm.php";
     $pmhandler = new PMDataHandler();
 
     //Die Sprachdatei
-    $lang->load('pairview');
+    $lang->load ('pairview');
 
     //Navigation bauen :D
 
-    switch($mybb->input['action'])
-    {
+    switch ($mybb->input['action']) {
         case "pairview_add":
-            add_breadcrumb($lang->pairview_add);
+            add_breadcrumb ($lang->pairview_add);
             break;
         case "pairview":
-            add_breadcrumb($lang->pairview);
+            add_breadcrumb ($lang->pairview);
             break;
     }
 
 
     //Menü
-    eval("\$pairview_menu = \"" . $templates->get("pairview_menu") . "\";");
+    eval("\$pairview_menu = \"" . $templates->get ("pairview_menu") . "\";");
 
     /*
      * Paare hinzugefügen
      */
 
-    if ($mybb->get_input('action') == 'pairview_add') {
+    if ($mybb->get_input ('action') == 'pairview_add') {
         //Gäste sollen natürlich keine Pärchen hinzufügen können.
         if ($mybb->user['uid'] == 0) {
             error_no_permission ();
@@ -589,213 +588,217 @@ function misc_pairview()
         output_page ($page);
     }
 
-/*
- * Paare auslesen
- */
-if ($mybb->get_input('action') == 'pairview') {
+    /*
+     * Paare auslesen
+     */
+    if ($mybb->get_input ('action') == 'pairview') {
 
-    $pair_cat_setting = $mybb->settings['pairview_category'];
-    $type = explode(", ", $pair_cat_setting);
+        $pair_cat_setting = $mybb->settings['pairview_category'];
+        $type = explode (", ", $pair_cat_setting);
 
-    foreach ($type as $typ) {
-        $pairs = '';
-        $select = $db->query("SELECT *
+        foreach ($type as $typ) {
+            $pairs = '';
+            $select = $db->query ("SELECT *
             FROM " . TABLE_PREFIX . "pairs p
             left join " . TABLE_PREFIX . "users u
             on (u.uid = p.lover1)
             where typ LIKE '%$typ%'
             order by username ASC
             ");
-        while ($row = $db->fetch_array($select)) {
+            while ($row = $db->fetch_array ($select)) {
 
-            $pair_type = $row['typ'];
-            if ($mybb->usergroup['canmodcp'] == 1 OR $row['lover1'] == $mybb->user['uid'] OR  $row['lover2'] == $mybb->user['uid']) {
-                $cat_select_edit = "";
+                $pair_type = $row['typ'];
+                if ($mybb->usergroup['canmodcp'] == 1 OR $row['lover1'] == $mybb->user['uid'] OR $row['lover2'] == $mybb->user['uid']) {
+                    $cat_select_edit = "";
 
-                foreach ($type as $cat){
+                    foreach ($type as $cat) {
 
 
-                    if($cat == $pair_type){
-                        $cat_select_edit .= "<option selected>{$cat}</option>";
-                    } else{
-                        $cat_select_edit .= "<option>{$cat}</option>";
+                        if ($cat == $pair_type) {
+                            $cat_select_edit .= "<option selected>{$cat}</option>";
+                        } else {
+                            $cat_select_edit .= "<option>{$cat}</option>";
+                        }
+
+
                     }
 
 
+                    eval("\$edit = \"" . $templates->get ("pairview_chara_edit") . "\";");
+                    $option = "<tr><td colspan='3' align='center'><a href='misc.php?action=pairview&delete=$row[pairId]'>{$lang->pairview_delete}</a> # {$edit}</td></tr>";
                 }
-
-
-                eval("\$edit = \"" . $templates->get("pairview_chara_edit") . "\";");
-                $option = "<tr><td colspan='3' align='center'><a href='misc.php?action=pairview&delete=$row[pairId]'>{$lang->pairview_delete}</a> # {$edit}</td></tr>";
-            }
-            /*
-             * Zieh mal alle Informationen für den ersten Charakter aus der Usertabelle
-             */
-            $lover1_uid = $row['lover1'];
-            $lover1_select = $db->query("select *
+                /*
+                 * Zieh mal alle Informationen für den ersten Charakter aus der Usertabelle
+                 */
+                $lover1_uid = $row['lover1'];
+                $lover1_select = $db->query ("select *
               from " . TABLE_PREFIX . "users
               where uid = '$lover1_uid'
               ");
-            $lover1_info = $db->fetch_array($lover1_select);
+                $lover1_info = $db->fetch_array ($lover1_select);
 
-            $username = format_name($lover1_info['username'], $lover1_info['usergroup'], $lover1_info['displaygroup']);
-            $lover1 = build_profile_link($username, $lover1_info['uid']);
-            $gif1 = $row['gif1'];
-            if ($lover1_info['birthday']) {
-                $age1 = intval(date('Y', strtotime("1." . $mybb->settings['minica_month'] . "." . $mybb->settings['minica_year'] . "") - strtotime($lover1_info['birthday']))) - 1970;
-            } else {
-                $age1 = "k/A";
-            }
-            /*
-             * Zieh mal alle Informationen für den zweiten Charakter aus der Usertabelle
-             */
-            $lover2_uid = $row['lover2'];
-            $lover2_select = $db->query("select *
+                $username = format_name ($lover1_info['username'], $lover1_info['usergroup'], $lover1_info['displaygroup']);
+                $lover1 = build_profile_link ($username, $lover1_info['uid']);
+                $gif1 = $row['gif1'];
+                if ($lover1_info['birthday']) {
+                    $age1 = intval (date ('Y', strtotime ("1." . $mybb->settings['minica_month'] . "." . $mybb->settings['minica_year'] . "") - strtotime ($lover1_info['birthday']))) - 1970;
+                } else {
+                    $age1 = "k/A";
+                }
+                /*
+                 * Zieh mal alle Informationen für den zweiten Charakter aus der Usertabelle
+                 */
+                $lover2_uid = $row['lover2'];
+                $lover2_select = $db->query ("select *
               from " . TABLE_PREFIX . "users
               where uid = '$lover2_uid'
               ");
-            $lover2_info = $db->fetch_array($lover2_select);
+                $lover2_info = $db->fetch_array ($lover2_select);
 
-            $username = format_name($lover2_info['username'], $lover2_info['usergroup'], $lover2_info['displaygroup']);
-            $lover2 = build_profile_link($username, $lover2_info['uid']);
-            if ($lover2_info['birthday']) {
-                $age2 = intval(date('Y', strtotime("1." . $mybb->settings['minica_month'] . "." . $mybb->settings['minica_year'] . "") - strtotime($lover2_info['birthday']))) - 1970;
-            } else {
-                $age2 = "k/A";
+                $username = format_name ($lover2_info['username'], $lover2_info['usergroup'], $lover2_info['displaygroup']);
+                $lover2 = build_profile_link ($username, $lover2_info['uid']);
+                if ($lover2_info['birthday']) {
+                    $age2 = intval (date ('Y', strtotime ("1." . $mybb->settings['minica_month'] . "." . $mybb->settings['minica_year'] . "") - strtotime ($lover2_info['birthday']))) - 1970;
+                } else {
+                    $age2 = "k/A";
+                }
+                $gif2 = $row['gif2'];
+
+                eval("\$pairs .= \"" . $templates->get ("pairview_bit_charas") . "\";");
+
+
             }
-            $gif2 = $row['gif2'];
 
-            eval("\$pairs .= \"" . $templates->get("pairview_bit_charas") . "\";");
-
-
+            eval("\$pair_bit .= \"" . $templates->get ("pairview_chara_bit") . "\";");
         }
 
-        eval("\$pair_bit .= \"" . $templates->get("pairview_chara_bit") . "\";");
+
+        $delete = $mybb->input['delete'];
+        if ($delete) {
+            $db->delete_query ("pairs", "pairId = '$delete'");
+            redirect ("misc.php?action=pairview");
+        }
+
+        if (isset($mybb->input['edit'])) {
+            $pairId = $mybb->input['pairId'];
+            $typ = $mybb->input['typ'];
+            $lover1 = (int)$mybb->input['lover1'];
+            $lover2 = (int)$mybb->input['lover2'];
+            $gif1 = $mybb->input['gif1'];
+            $gif2 = $mybb->input['gif2'];
+
+            $edit_pair = array(
+                "typ" => $typ,
+                "lover1" => $lover1,
+                "lover2" => $lover2,
+                "gif1" => $gif1,
+                "gif2" => $gif2
+            );
+
+
+            $db->update_query ("pairs", $edit_pair, "pairId='{$pairId}'");
+            redirect ("misc.php?action=pairview");
+        }
+
+        // Using the misc_help template for the page wrapper
+        eval("\$page = \"" . $templates->get ("pairview") . "\";");
+        output_page ($page);
+
     }
-
-
-    $delete = $mybb->input['delete'];
-    if ($delete) {
-        $db->delete_query("pairs", "pairId = '$delete'");
-        redirect("misc.php?action=pairview");
-    }
-
-    if (isset($mybb->input['edit'])) {
-        $pairId = $mybb->input['pairId'];
-        $typ = $mybb->input['typ'];
-        $lover1 = (int)$mybb->input['lover1'];
-        $lover2 = (int)$mybb->input['lover2'];
-        $gif1 = $mybb->input['gif1'];
-        $gif2 = $mybb->input['gif2'];
-
-        $edit_pair = array(
-            "typ" => $typ,
-            "lover1" => $lover1,
-            "lover2" => $lover2,
-            "gif1" => $gif1,
-            "gif2" => $gif2
-        );
-
-
-        $db->update_query("pairs", $edit_pair, "pairId='{$pairId}'");
-        redirect("misc.php?action=pairview");
-    }
-
-    // Using the misc_help template for the page wrapper
-    eval("\$page = \"" . $templates->get("pairview") . "\";");
-    output_page($page);
-
 }
 
 //wer ist wo
-$plugins->add_hook('fetch_wol_activity_end', 'pairview_user_activity');
-$plugins->add_hook('build_friendly_wol_location_end', 'pairview_location_activity');
+    $plugins->add_hook ('fetch_wol_activity_end', 'pairview_user_activity');
+    $plugins->add_hook ('build_friendly_wol_location_end', 'pairview_location_activity');
 
-function pairview_user_activity($user_activity){
-    global $user;
-
-    if(my_strpos($user['location'], "misc.php?action=pairview") !== false) {
-        $user_activity['activity'] = "pairview";
-    }
-    if(my_strpos($user['location'], "misc.php?action=pairview_add") !== false) {
-        $user_activity['activity'] = "pairview_add";
-    }
-
-    return $user_activity;
-}
-
-function pairview_location_activity($plugin_array) {
-    global $db, $mybb, $lang;
-
-    if($plugin_array['user_activity']['activity'] == "pairview")
+    function pairview_user_activity($user_activity)
     {
-        $plugin_array['location_name'] = "Schaut sich die <b><a href='misc.php?action=pairview'>Pärchenübersicht</a></b> an.";
+        global $user;
+
+        if (my_strpos ($user['location'], "misc.php?action=pairview") !== false) {
+            $user_activity['activity'] = "pairview";
+        }
+        if (my_strpos ($user['location'], "misc.php?action=pairview_add") !== false) {
+            $user_activity['activity'] = "pairview_add";
+        }
+
+        return $user_activity;
     }
 
-    if($plugin_array['user_activity']['activity'] == "pairview_add")
+    function pairview_location_activity($plugin_array)
     {
-        $plugin_array['location_name'] = "Fügt ein weiteres Pärchen der <b><a href='misc.php?action=pairview_add'>Pärchenübersicht</a></b> hinzu.";
+        global $db, $mybb, $lang;
+
+        if ($plugin_array['user_activity']['activity'] == "pairview") {
+            $plugin_array['location_name'] = "Schaut sich die <b><a href='misc.php?action=pairview'>Pärchenübersicht</a></b> an.";
+        }
+
+        if ($plugin_array['user_activity']['activity'] == "pairview_add") {
+            $plugin_array['location_name'] = "Fügt ein weiteres Pärchen der <b><a href='misc.php?action=pairview_add'>Pärchenübersicht</a></b> hinzu.";
+        }
+
+        return $plugin_array;
     }
 
-    return $plugin_array;
-}
-
-/**
- * Was passiert wenn ein User gelöscht wird
- * Relas bei anderen zu npc umtragen
- * die relas des users löschen
- */
-$plugins->add_hook("admin_user_users_delete_commit_end", "pairview_user_delete");
-function pairview_user_delete()
-{
-    global $db, $cache, $mybb, $user, $profile_fields;
-    $db->delete_query('pairs', "lover1 = " . (int)$user['uid'] . " OR lover2 = " . (int)$user['uid'] . " ");
-}
-
-$plugins->add_hook('usercp_options_start', 'pv_edit_options');
-function pv_edit_options() {
-    global $db, $mybb, $templates, $pn_check, $pairview_pn, $pn_check_all, $lang ;
-    //Die Sprachdatei
-    $lang->load('pairview');
-
-    $pv_pn = $mybb->user['pairview_pn'];
-    $pv_pn_all = $mybb->user['pairview_pn_all'];
-    $pn_check = '';
-    if($pv_pn == 1){
-        $pn_check = 'checked="checked"';
-    }
-    if($pv_pn_all == 1){
-        $pn_check_all = 'checked="checked"';
+    /**
+     * Was passiert wenn ein User gelöscht wird
+     * Relas bei anderen zu npc umtragen
+     * die relas des users löschen
+     */
+    $plugins->add_hook ("admin_user_users_delete_commit_end", "pairview_user_delete");
+    function pairview_user_delete()
+    {
+        global $db, $cache, $mybb, $user, $profile_fields;
+        $db->delete_query ('pairs', "lover1 = " . (int)$user['uid'] . " OR lover2 = " . (int)$user['uid'] . " ");
     }
 
-    eval("\$pairview_pn .=\"".$templates->get("pairview_pn_usercp")."\";");
-}
+    $plugins->add_hook ('usercp_options_start', 'pv_edit_options');
+    function pv_edit_options()
+    {
+        global $db, $mybb, $templates, $pn_check, $pairview_pn, $pn_check_all, $lang;
+        //Die Sprachdatei
+        $lang->load ('pairview');
+
+        $pv_pn = $mybb->user['pairview_pn'];
+        $pv_pn_all = $mybb->user['pairview_pn_all'];
+        $pn_check = '';
+        if ($pv_pn == 1) {
+            $pn_check = 'checked="checked"';
+        }
+        if ($pv_pn_all == 1) {
+            $pn_check_all = 'checked="checked"';
+        }
+
+        eval("\$pairview_pn .=\"" . $templates->get ("pairview_pn_usercp") . "\";");
+    }
+
 
 //User CP: änderungen im ucp speichern
 //bei Wunsch des Users, Einstellung für alle Charaktere übernehmen
 $plugins->add_hook('usercp_do_options_start', 'pv_edit_options_do');
-function pv_edit_options_do() {
+function pv_edit_options_do()
+{
     global $mybb, $db, $templates;
     //Was hat der User eingestellt?
-    $pv_pn = $mybb->get_input('pairview_pn', MyBB::INPUT_INT);
+    $pv_pn = $mybb->get_input ('pairview_pn', MyBB::INPUT_INT);
     $pv_pn_all = $mybb->input['pairview_pn_all'];
 
     //Wer ist online, Wer ist Hauptaccount.
-    $this_user = intval($mybb->user['uid']);
-    $as_uid = intval($mybb->user['as_uid']);
+    $this_user = intval ($mybb->user['uid']);
+    $as_uid = intval ($mybb->user['as_uid']);
 //Soll für alle Charaktere übernommen werden oder nicht?
-    if($pv_pn_all == 1) {
+    if ($pv_pn_all == 1) {
         //Ja, alle raussuchen
-        if($as_uid == 0) {
-            $id = intval($mybb->user['uid']);
+        if ($as_uid == 0) {
+            $id = intval ($mybb->user['uid']);
         } else {
-            $id = intval($mybb->user['as_uid']);
+            $id = intval ($mybb->user['as_uid']);
         }
         //speichern
-        $db->query("UPDATE ".TABLE_PREFIX."users SET pairview_pn=".$pv_pn." WHERE uid=".$id." OR as_uid=".$id."");
+        $db->query ("UPDATE " . TABLE_PREFIX . "users SET pairview_pn=" . $pv_pn . " WHERE uid=" . $id . " OR as_uid=" . $id . "");
 
     } else {
         //nur für aktuellen Charakter speichern
-        $db->query("UPDATE ".TABLE_PREFIX."users SET pairview_pn=".$pv_pn." WHERE uid=".$this_user."");
+        $db->query ("UPDATE " . TABLE_PREFIX . "users SET pairview_pn=" . $pv_pn . " WHERE uid=" . $this_user . "");
     }
 }
