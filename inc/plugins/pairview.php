@@ -144,35 +144,127 @@ function pairview_install()
 <td class="trow1" align="center" width="80%">
 <form action="misc.php?action=pairview_add" id="pair_add"  method="post">
 <table width="100%">
-	<tr><td class="trow1">	<strong>{$lang->pairview_rela}</strong></td><td class="trow2">
+	<tr><td class="trow1">	<div class="profilucp">{$lang->pairview_rela}</div></td><td class="trow2">
 	<select name=\'typ\' id=\'typ\'>
 		{$cat_select}
 		</select></td></tr>
-	<tr><td class="trow1">	<strong>{$lang->pairview_lover1}</strong></td><td class="trow2">
-	<select name=\'lover1\' id=\'lover1\'>
-{$chara_name}
-</select></td></tr>
+	<tr><td class="trow1">	<div class="profilucp">{$lang->pairview_lover1}</div></td><td class="trow2">
+		<input type="text" name="lover1" id="lover1" value="{$lover1}" class="textbox" size="40" maxlength="1155" v style="min-width: 150px; max-width: 100%;"   />
+		</td></tr>
 	<tr><td class="trow1">	
-	<strong>{$lang->pairview_lover1_gif}</strong>
+	<div class="profilucp">{$lang->pairview_lover1_gif}</div>
 		<div class="smalltext">{$lang->pairview_gifsize}</div></td><td class="trow2">
 <input type="text" name="gif1" id="gif1" value="" class="textbox" /></td></tr>
 	<tr><td class="trow1">	
-<strong>{$lang->pairview_lover2}</div></td><td class="trow2">
-	<select name=\'lover2\' id=\'lover2\'>
-{$chara_name}
-</select>	</td></tr>
+<div class="profilucp">{$lang->pairview_lover2}</div></td><td class="trow2">
+		<input type="text" name="lover2" id="lover2" value="{$lover2}" class="textbox" size="40" maxlength="1155" v style="min-width: 150px; max-width: 100%;"   />	</td></tr>
 		<tr><td class="trow1">	
-	<strong>{$lang->pairview_lover2_gif}</strong>
+	<div class="profilucp">{$lang->pairview_lover2_gif}</div>
 				<div class="smalltext">{$lang->pairview_gifsize}</div></td><td class="trow2">
 <input type="text" name="gif2" id="gif2" value="" class="textbox" /></td></tr>
 	<td align="center" colspan="2" class="trow1"><input type="submit" name="add" value="Pärchen eintragen" id="submit" class="button"></td></tr>
 	</table></form>
+
 </td>
 </tr>
 </table>
 {$footer}
 </body>
-</html>'),
+</html>
+
+<link rel="stylesheet" href="{$mybb->asset_url}/jscripts/select2/select2.css?ver=1807">
+<script type="text/javascript" src="{$mybb->asset_url}/jscripts/select2/select2.min.js?ver=1806"></script>
+<script type="text/javascript">
+<!--
+if(use_xmlhttprequest == "1")
+{
+    MyBB.select2();
+    $("#lover1").select2({
+        placeholder: "{$lang->search_user}",
+        minimumInputLength: 2,
+        maximumSelectionSize: \'\',
+        multiple: true,
+        ajax: { // instead of writing the function to execute the request we use Select2\'s convenient helper
+            url: "xmlhttp.php?action=get_users",
+            dataType: \'json\',
+            data: function (term, page) {
+                return {
+                    query: term, // search term
+                };
+            },
+            results: function (data, page) { // parse the results into the format expected by Select2.
+                // since we are using custom formatting functions we do not need to alter remote JSON data
+                return {results: data};
+            }
+        },
+        initSelection: function(element, callback) {
+            var query = $(element).val();
+            if (query !== "") {
+                var newqueries = [];
+                exp_queries = query.split(",");
+                $.each(exp_queries, function(index, value ){
+                    if(value.replace(/\s/g, \'\') != "")
+                    {
+                        var newquery = {
+                            id: value.replace(/,\s?/g, ","),
+                            text: value.replace(/,\s?/g, ",")
+                        };
+                        newqueries.push(newquery);
+                    }
+                });
+                callback(newqueries);
+            }
+        }
+    })
+}
+// -->
+</script>
+
+<script type="text/javascript">
+<!--
+if(use_xmlhttprequest == "1")
+{
+    MyBB.select2();
+    $("#lover2").select2({
+        placeholder: "{$lang->search_user}",
+        minimumInputLength: 2,
+        maximumSelectionSize: \'\',
+        multiple: true,
+        ajax: { // instead of writing the function to execute the request we use Select2\'s convenient helper
+            url: "xmlhttp.php?action=get_users",
+            dataType: \'json\',
+            data: function (term, page) {
+                return {
+                    query: term, // search term
+                };
+            },
+            results: function (data, page) { // parse the results into the format expected by Select2.
+                // since we are using custom formatting functions we do not need to alter remote JSON data
+                return {results: data};
+            }
+        },
+        initSelection: function(element, callback) {
+            var query = $(element).val();
+            if (query !== "") {
+                var newqueries = [];
+                exp_queries = query.split(",");
+                $.each(exp_queries, function(index, value ){
+                    if(value.replace(/\s/g, \'\') != "")
+                    {
+                        var newquery = {
+                            id: value.replace(/,\s?/g, ","),
+                            text: value.replace(/,\s?/g, ",")
+                        };
+                        newqueries.push(newquery);
+                    }
+                });
+                callback(newqueries);
+            }
+        }
+    })
+}
+// -->
+</script>'),
         'sid' => '-1',
         'version' => '',
         'dateline' => TIME_NOW
@@ -206,33 +298,128 @@ function pairview_install()
 	  <input type="hidden" name="pairId" id="pairId" value="{$row[\'pairId\']}" />
 <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
 	<tr><td class="tcat" colspan="2"><div class=\'headline\'>{$lang->pairview_change}</div></td></tr>
-	<tr><td class="trow1">	<strong>{$lang->pairview_rela}</strong></td><td class="trow2">
+	<tr><td class="trow1">	<div class="profilucp">{$lang->pairview_rela}</div></td><td class="trow2">
 	<select name=\'typ\' id=\'typ\'>
-{$cat_select_edit}
+		<option  selected value="{$row[\'typ\']}">{$row[\'typ\']}</option>
+{$cat_select}
 		</select></td></tr>
-		<tr><td class="trow1">	
-	<strong>{$lang->pairview_lover1}</strong>
-			<div class="smalltext">{$lang->pairview_change_lover_desc}</div>
+			<tr><td class="trow1">	
+	<div class="profilucp">Partner 1</div>
 </td><td class="trow2">
-<input type="number" name="lover1" id="lover1" value="{$row[\'lover1\']}" class="textbox" /></td></tr>
+<input type="text" name="lover1" id="lover1" value="{$row[\'lover1\']}" class="textbox" size="40" maxlength="1155" v style="min-width: 150px; max-width: 100%;"  /></td></tr>
 	<tr><td class="trow1">	
-	<strong>{$lang->pairview_lover1_gif}</strong>
-		<div class="smalltext">{$lang->pairview_gifsize}</div></td><td class="trow2">
+	<div class="profilucp">Gif für Partner 1</div>
+		<div class="smalltext">Größe 90x100, Typ ist eine Gif</div></td><td class="trow2">
 <input type="text" name="gif1" id="gif1" value="{$row[\'gif1\']}" class="textbox" /></td></tr>
 			<tr><td class="trow1">	
-	<strong>{$lang->pairview_lover2}</strong>
-			<div class="smalltext">{$lang->pairview_change_lover_desc}</div>
+	<div class="profilucp">Partner 1</div>
 </td><td class="trow2">
-<input type="number" name="lover2" id="lover2" value="{$row[\'lover2\']}" class="textbox" /></td></tr>
+<input type="text" name="lover2" id="lover2" value="{$row[\'lover2\']}" class="textbox" size="40" maxlength="1155" v style="min-width: 150px; max-width: 100%;"  /></td></tr>
 		<tr><td class="trow1">	
-	<strong>{$lang->pairview_lover2_gif}</strong>
-			<div class="smalltext">{$lang->pairview_gifsize}</div></td><td class="trow2">
+	<div class="profilucp">Gif für Partner 2</div>
+			<div class="smalltext">Größe 90x100, Typ ist eine Gif</div></td><td class="trow2">
 <input type="text" name="gif2" id="gif2" value="{$row[\'gif2\']}" class="textbox" /></td></tr>
 	<td align="center" colspan="2" class="trow1"><input type="submit" name="edit" value="Pärchen editieren" id="submit" class="button"></td></tr>
 	</table></form>
 		</div><a href="#closepop" class="closepop"></a>
 </div>
-<a href="#popinfo$row[pairId]">{$lang->pairview_edit}</a>'),
+
+<a href="#popinfo$row[pairId]">Editieren</a>
+
+
+<link rel="stylesheet" href="{$mybb->asset_url}/jscripts/select2/select2.css?ver=1807">
+<script type="text/javascript" src="{$mybb->asset_url}/jscripts/select2/select2.min.js?ver=1806"></script>
+<script type="text/javascript">
+<!--
+if(use_xmlhttprequest == "1")
+{
+    MyBB.select2();
+    $("#lover1").select2({
+        placeholder: "{$lang->search_user}",
+        minimumInputLength: 2,
+        maximumSelectionSize: \'\',
+        multiple: true,
+        ajax: { // instead of writing the function to execute the request we use Select2\'s convenient helper
+            url: "xmlhttp.php?action=get_users",
+            dataType: \'json\',
+            data: function (term, page) {
+                return {
+                    query: term, // search term
+                };
+            },
+            results: function (data, page) { // parse the results into the format expected by Select2.
+                // since we are using custom formatting functions we do not need to alter remote JSON data
+                return {results: data};
+            }
+        },
+        initSelection: function(element, callback) {
+            var query = $(element).val();
+            if (query !== "") {
+                var newqueries = [];
+                exp_queries = query.split(",");
+                $.each(exp_queries, function(index, value ){
+                    if(value.replace(/\s/g, \'\') != "")
+                    {
+                        var newquery = {
+                            id: value.replace(/,\s?/g, ","),
+                            text: value.replace(/,\s?/g, ",")
+                        };
+                        newqueries.push(newquery);
+                    }
+                });
+                callback(newqueries);
+            }
+        }
+    })
+}
+// -->
+</script>
+
+<script type="text/javascript">
+<!--
+if(use_xmlhttprequest == "1")
+{
+    MyBB.select2();
+    $("#lover2").select2({
+        placeholder: "{$lang->search_user}",
+        minimumInputLength: 2,
+        maximumSelectionSize: \'\',
+        multiple: true,
+        ajax: { // instead of writing the function to execute the request we use Select2\'s convenient helper
+            url: "xmlhttp.php?action=get_users",
+            dataType: \'json\',
+            data: function (term, page) {
+                return {
+                    query: term, // search term
+                };
+            },
+            results: function (data, page) { // parse the results into the format expected by Select2.
+                // since we are using custom formatting functions we do not need to alter remote JSON data
+                return {results: data};
+            }
+        },
+        initSelection: function(element, callback) {
+            var query = $(element).val();
+            if (query !== "") {
+                var newqueries = [];
+                exp_queries = query.split(",");
+                $.each(exp_queries, function(index, value ){
+                    if(value.replace(/\s/g, \'\') != "")
+                    {
+                        var newquery = {
+                            id: value.replace(/,\s?/g, ","),
+                            text: value.replace(/,\s?/g, ",")
+                        };
+                        newqueries.push(newquery);
+                    }
+                });
+                callback(newqueries);
+            }
+        }
+    })
+}
+// -->
+</script>'),
         'sid' => '-1',
         'version' => '',
         'dateline' => TIME_NOW
@@ -457,8 +644,8 @@ function misc_pairview()
             $gif1 = $db->escape_string ($_POST['gif1']);
             $lover2 = $db->escape_string ($_POST['lover2']);
             $gif2 = $db->escape_string ($_POST['gif2']);
-			
-			        $lover_user = get_user_by_username($lover1, array('fields' => '*'));
+
+            $lover_user = get_user_by_username($lover1, array('fields' => '*'));
             $lover1 = $lover_user['uid'];
 
             $lover_user = get_user_by_username($lover2, array('fields' => '*'));
@@ -473,7 +660,7 @@ function misc_pairview()
 
             $love_name1 = $db->fetch_array ($query1);
             $lover_name1 = $love_name1['username'];
-			$lover_pn1 = $love_name1['pairview_pn']
+            $lover_pn1 = $love_name1['pairview_pn'];
 
             $query2 = $db->query ("SELECT username, pairview_pn
                     from " . TABLE_PREFIX . "users
@@ -481,62 +668,19 @@ function misc_pairview()
                     ");
             $love_name2 = $db->fetch_array ($query2);
             $lover_name2 = $love_name2['username'];
-				$lover_pn2 = $love_name2['pairview_pn']
+				$lover_pn2 = $love_name2['pairview_pn'];
 
 
             
                 if ($lover1 == $mybb->user['uid']) {
-					if($lover_pn1 != 0){
-                    $pm_change = array(
-                        "subject" => "Unser (geplantes) Pairing wurde eingetagen",
-                        "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
-                        //From: Wer schreibt die PN
-                        "fromid" => $lover1,
-                        //to: an wen geht die pn
-                        "toid" => $lover2
-                    );
-                    // $pmhandler->admin_override = true;
-                    $pmhandler->set_data ($pm_change);
-                    if (!$pmhandler->validate_pm ())
-                        return false;
-                    else {
-                        $pmhandler->insert_pm ();
-                    }
-					}
-                } elseif ($lover2 == $mybb->user['uid']) {
-					if($lover_pn1 != 0)
-                    $pm_change = array(
-                        "subject" => "Unser (geplantes) Pairing wurde eingetagen",
-                        "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
-                        //From: Wer schreibt die PN
-                        "fromid" => $lover2,
-                        //to: an wen geht die pn
-                        "toid" => $lover1
-                    );
-                    // $pmhandler->admin_override = true;
-                    $pmhandler->set_data ($pm_change);
-                    if (!$pmhandler->validate_pm ())
-                        return false;
-                    else {
-                        $pmhandler->insert_pm ();
-                    }
-
-                } else {
-					if($lover_pn1 != 0 and $lover_pn2 != 0){
-                    $lover_array = array(
-                        "lover1" => $lover1,
-                        "lover2" => $lover2
-                    );
-
-                    foreach ($lover_array as $lover => $lover_uid) {
-
+                    if($lover_pn1 != 0){
                         $pm_change = array(
-                            "subject" => "Das (geplante) Pairing wurde eingetagen",
-                            "message" => "Ich habe ein Pairing in die Übersicht für dich und deinem Pairingpartner eingetragen. <br /> Es handelt sich um die Charaktere <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie <i>{$typ}</i>. Ich hoffe, es ist für dich in Ordnung. <br /> Du kannst es dir <a href='misc.php?action=pairview'>hier</a> ansehen.",
+                            "subject" => "Unser (geplantes) Pairing wurde eingetagen",
+                            "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
                             //From: Wer schreibt die PN
-                            "fromid" => $mybb->user['uid'],
+                            "fromid" => $lover1,
                             //to: an wen geht die pn
-                            "toid" => $lover_uid
+                            "toid" => $lover2
                         );
                         // $pmhandler->admin_override = true;
                         $pmhandler->set_data ($pm_change);
@@ -546,9 +690,52 @@ function misc_pairview()
                             $pmhandler->insert_pm ();
                         }
                     }
+                } elseif ($lover2 == $mybb->user['uid']) {
+                    if($lover_pn1 != 0)
+                        $pm_change = array(
+                            "subject" => "Unser (geplantes) Pairing wurde eingetagen",
+                            "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
+                            //From: Wer schreibt die PN
+                            "fromid" => $lover2,
+                            //to: an wen geht die pn
+                            "toid" => $lover1
+                        );
+                    // $pmhandler->admin_override = true;
+                    $pmhandler->set_data ($pm_change);
+                    if (!$pmhandler->validate_pm ())
+                        return false;
+                    else {
+                        $pmhandler->insert_pm ();
+                    }
 
+                } else {
+                    if($lover_pn1 != 0 and $lover_pn2 != 0){
+                        $lover_array = array(
+                            "lover1" => $lover1,
+                            "lover2" => $lover2
+                        );
+
+                        foreach ($lover_array as $lover => $lover_uid) {
+
+                            $pm_change = array(
+                                "subject" => "Das (geplante) Pairing wurde eingetagen",
+                                "message" => "Ich habe ein Pairing in die Übersicht für dich und deinem Pairingpartner eingetragen. <br /> Es handelt sich um die Charaktere <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie <i>{$typ}</i>. Ich hoffe, es ist für dich in Ordnung. <br /> Du kannst es dir <a href='misc.php?action=pairview'>hier</a> ansehen.",
+                                //From: Wer schreibt die PN
+                                "fromid" => $mybb->user['uid'],
+                                //to: an wen geht die pn
+                                "toid" => $lover_uid
+                            );
+                            // $pmhandler->admin_override = true;
+                            $pmhandler->set_data ($pm_change);
+                            if (!$pmhandler->validate_pm ())
+                                return false;
+                            else {
+                                $pmhandler->insert_pm ();
+                            }
+                        }
+
+                    }
                 }
-				}
 
                 $new_pair = array(
                     "typ" => $typ,
@@ -599,7 +786,7 @@ function misc_pairview()
             order by username ASC
             ");
             while ($row = $db->fetch_array ($select)) {
-     $lover1_uid = $row['lover1'];
+                $lover1_uid = $row['lover1'];
                 $lover2_uid = $row['lover2'];
                 $pair_type = $row['typ'];
 
@@ -686,8 +873,8 @@ function misc_pairview()
             $lover2 = htmlspecialchars($mybb->input['lover2']);
             $gif1 = $mybb->input['gif1'];
             $gif2 = $mybb->input['gif2'];
-			
-			  $lover_user = get_user_by_username($lover1, array('fields' => '*'));
+
+            $lover_user = get_user_by_username($lover1, array('fields' => '*'));
             $lover1 = $lover_user['uid'];
 
             $lover_user = get_user_by_username($lover2, array('fields' => '*'));
@@ -714,69 +901,69 @@ function misc_pairview()
 }
 
 //wer ist wo
-    $plugins->add_hook ('fetch_wol_activity_end', 'pairview_user_activity');
-    $plugins->add_hook ('build_friendly_wol_location_end', 'pairview_location_activity');
+$plugins->add_hook ('fetch_wol_activity_end', 'pairview_user_activity');
+$plugins->add_hook ('build_friendly_wol_location_end', 'pairview_location_activity');
 
-    function pairview_user_activity($user_activity)
-    {
-        global $user;
+function pairview_user_activity($user_activity)
+{
+    global $user;
 
-        if (my_strpos ($user['location'], "misc.php?action=pairview") !== false) {
-            $user_activity['activity'] = "pairview";
-        }
-        if (my_strpos ($user['location'], "misc.php?action=pairview_add") !== false) {
-            $user_activity['activity'] = "pairview_add";
-        }
-
-        return $user_activity;
+    if (my_strpos ($user['location'], "misc.php?action=pairview") !== false) {
+        $user_activity['activity'] = "pairview";
+    }
+    if (my_strpos ($user['location'], "misc.php?action=pairview_add") !== false) {
+        $user_activity['activity'] = "pairview_add";
     }
 
-    function pairview_location_activity($plugin_array)
-    {
-        global $db, $mybb, $lang;
+    return $user_activity;
+}
 
-        if ($plugin_array['user_activity']['activity'] == "pairview") {
-            $plugin_array['location_name'] = "Schaut sich die <b><a href='misc.php?action=pairview'>Pärchenübersicht</a></b> an.";
-        }
+function pairview_location_activity($plugin_array)
+{
+    global $db, $mybb, $lang;
 
-        if ($plugin_array['user_activity']['activity'] == "pairview_add") {
-            $plugin_array['location_name'] = "Fügt ein weiteres Pärchen der <b><a href='misc.php?action=pairview_add'>Pärchenübersicht</a></b> hinzu.";
-        }
-
-        return $plugin_array;
+    if ($plugin_array['user_activity']['activity'] == "pairview") {
+        $plugin_array['location_name'] = "Schaut sich die <b><a href='misc.php?action=pairview'>Pärchenübersicht</a></b> an.";
     }
 
-    /**
-     * Was passiert wenn ein User gelöscht wird
-     * Relas bei anderen zu npc umtragen
-     * die relas des users löschen
-     */
-    $plugins->add_hook ("admin_user_users_delete_commit_end", "pairview_user_delete");
-    function pairview_user_delete()
-    {
-        global $db, $cache, $mybb, $user, $profile_fields;
-        $db->delete_query ('pairs', "lover1 = " . (int)$user['uid'] . " OR lover2 = " . (int)$user['uid'] . " ");
+    if ($plugin_array['user_activity']['activity'] == "pairview_add") {
+        $plugin_array['location_name'] = "Fügt ein weiteres Pärchen der <b><a href='misc.php?action=pairview_add'>Pärchenübersicht</a></b> hinzu.";
     }
 
-    $plugins->add_hook ('usercp_options_start', 'pv_edit_options');
-    function pv_edit_options()
-    {
-        global $db, $mybb, $templates, $pn_check, $pairview_pn, $pn_check_all, $lang;
-        //Die Sprachdatei
-        $lang->load ('pairview');
+    return $plugin_array;
+}
 
-        $pv_pn = $mybb->user['pairview_pn'];
-        $pv_pn_all = $mybb->user['pairview_pn_all'];
-        $pn_check = '';
-        if ($pv_pn == 1) {
-            $pn_check = 'checked="checked"';
-        }
-        if ($pv_pn_all == 1) {
-            $pn_check_all = 'checked="checked"';
-        }
+/**
+ * Was passiert wenn ein User gelöscht wird
+ * Relas bei anderen zu npc umtragen
+ * die relas des users löschen
+ */
+$plugins->add_hook ("admin_user_users_delete_commit_end", "pairview_user_delete");
+function pairview_user_delete()
+{
+    global $db, $cache, $mybb, $user, $profile_fields;
+    $db->delete_query ('pairs', "lover1 = " . (int)$user['uid'] . " OR lover2 = " . (int)$user['uid'] . " ");
+}
 
-        eval("\$pairview_pn .=\"" . $templates->get ("pairview_pn_usercp") . "\";");
+$plugins->add_hook ('usercp_options_start', 'pv_edit_options');
+function pv_edit_options()
+{
+    global $db, $mybb, $templates, $pn_check, $pairview_pn, $pn_check_all, $lang;
+    //Die Sprachdatei
+    $lang->load ('pairview');
+
+    $pv_pn = $mybb->user['pairview_pn'];
+    $pv_pn_all = $mybb->user['pairview_pn_all'];
+    $pn_check = '';
+    if ($pv_pn == 1) {
+        $pn_check = 'checked="checked"';
     }
+    if ($pv_pn_all == 1) {
+        $pn_check_all = 'checked="checked"';
+    }
+
+    eval("\$pairview_pn .=\"" . $templates->get ("pairview_pn_usercp") . "\";");
+}
 
 
 //User CP: änderungen im ucp speichern
