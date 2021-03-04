@@ -789,6 +789,7 @@ function misc_pairview()
                 $lover1_uid = $row['lover1'];
                 $lover2_uid = $row['lover2'];
                 $pair_type = $row['typ'];
+                $option = "";
 
                 /*
                  * Zieh mal alle Informationen für den ersten Charakter aus der Usertabelle
