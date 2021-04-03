@@ -648,8 +648,8 @@ function misc_pairview()
             $lover_user = get_user_by_username($lover1, array('fields' => '*'));
             $lover1 = $lover_user['uid'];
 
-            $lover_user = get_user_by_username($lover2, array('fields' => '*'));
-            $lover2 = $lover_user['uid'];
+            $lover_user2 = get_user_by_username($lover2, array('fields' => '*'));
+            $lover2 = $lover_user2['uid'];
 
 
 
