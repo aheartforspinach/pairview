@@ -652,10 +652,11 @@ function misc_pairview()
             $lover2 = $lover_user['uid'];
 
 
+
             // Eine PN Versenden, um den Gegenpart zu informieren
             $query1 = $db->query ("SELECT username, pairview_pn
-                    from " . TABLE_PREFIX . "users
-                    where uid = " . $lover1 . "
+                    from ".TABLE_PREFIX."users
+                    where uid = '".$lover1."'
                     ");
 
             $love_name1 = $db->fetch_array ($query1);
@@ -663,24 +664,67 @@ function misc_pairview()
             $lover_pn1 = $love_name1['pairview_pn'];
 
             $query2 = $db->query ("SELECT username, pairview_pn
-                    from " . TABLE_PREFIX . "users
-                    where uid = " . $lover2 . "
+                    from ".TABLE_PREFIX."users
+                    where uid = '".$lover2."'
                     ");
             $love_name2 = $db->fetch_array ($query2);
             $lover_name2 = $love_name2['username'];
-				$lover_pn2 = $love_name2['pairview_pn'];
+            $lover_pn2 = $love_name2['pairview_pn'];
 
 
-            
-                if ($lover1 == $mybb->user['uid']) {
-                    if($lover_pn1 != 0){
+
+            if ($lover1 == $mybb->user['uid']) {
+                if($lover_pn1 != 0){
+                    $pm_change = array(
+                        "subject" => "Unser (geplantes) Pairing wurde eingetagen",
+                        "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
+                        //From: Wer schreibt die PN
+                        "fromid" => $lover1,
+                        //to: an wen geht die pn
+                        "toid" => $lover2
+                    );
+                    // $pmhandler->admin_override = true;
+                    $pmhandler->set_data ($pm_change);
+                    if (!$pmhandler->validate_pm ())
+                        return false;
+                    else {
+                        $pmhandler->insert_pm ();
+                    }
+                }
+            } elseif ($lover2 == $mybb->user['uid']) {
+                if($lover_pn1 != 0)
+                    $pm_change = array(
+                        "subject" => "Unser (geplantes) Pairing wurde eingetagen",
+                        "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
+                        //From: Wer schreibt die PN
+                        "fromid" => $lover2,
+                        //to: an wen geht die pn
+                        "toid" => $lover1
+                    );
+                // $pmhandler->admin_override = true;
+                $pmhandler->set_data ($pm_change);
+                if (!$pmhandler->validate_pm ())
+                    return false;
+                else {
+                    $pmhandler->insert_pm ();
+                }
+
+            } else {
+                if($lover_pn1 != 0 and $lover_pn2 != 0){
+                    $lover_array = array(
+                        "lover1" => $lover1,
+                        "lover2" => $lover2
+                    );
+
+                    foreach ($lover_array as $lover => $lover_uid) {
+
                         $pm_change = array(
-                            "subject" => "Unser (geplantes) Pairing wurde eingetagen",
-                            "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
+                            "subject" => "Das (geplante) Pairing wurde eingetagen",
+                            "message" => "Ich habe ein Pairing in die Übersicht für dich und deinem Pairingpartner eingetragen. <br /> Es handelt sich um die Charaktere <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie <i>{$typ}</i>. Ich hoffe, es ist für dich in Ordnung. <br /> Du kannst es dir <a href='misc.php?action=pairview'>hier</a> ansehen.",
                             //From: Wer schreibt die PN
-                            "fromid" => $lover1,
+                            "fromid" => $mybb->user['uid'],
                             //to: an wen geht die pn
-                            "toid" => $lover2
+                            "toid" => $lover_uid
                         );
                         // $pmhandler->admin_override = true;
                         $pmhandler->set_data ($pm_change);
@@ -690,66 +734,23 @@ function misc_pairview()
                             $pmhandler->insert_pm ();
                         }
                     }
-                } elseif ($lover2 == $mybb->user['uid']) {
-                    if($lover_pn1 != 0)
-                        $pm_change = array(
-                            "subject" => "Unser (geplantes) Pairing wurde eingetagen",
-                            "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
-                            //From: Wer schreibt die PN
-                            "fromid" => $lover2,
-                            //to: an wen geht die pn
-                            "toid" => $lover1
-                        );
-                    // $pmhandler->admin_override = true;
-                    $pmhandler->set_data ($pm_change);
-                    if (!$pmhandler->validate_pm ())
-                        return false;
-                    else {
-                        $pmhandler->insert_pm ();
-                    }
 
-                } else {
-                    if($lover_pn1 != 0 and $lover_pn2 != 0){
-                        $lover_array = array(
-                            "lover1" => $lover1,
-                            "lover2" => $lover2
-                        );
-
-                        foreach ($lover_array as $lover => $lover_uid) {
-
-                            $pm_change = array(
-                                "subject" => "Das (geplante) Pairing wurde eingetagen",
-                                "message" => "Ich habe ein Pairing in die Übersicht für dich und deinem Pairingpartner eingetragen. <br /> Es handelt sich um die Charaktere <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie <i>{$typ}</i>. Ich hoffe, es ist für dich in Ordnung. <br /> Du kannst es dir <a href='misc.php?action=pairview'>hier</a> ansehen.",
-                                //From: Wer schreibt die PN
-                                "fromid" => $mybb->user['uid'],
-                                //to: an wen geht die pn
-                                "toid" => $lover_uid
-                            );
-                            // $pmhandler->admin_override = true;
-                            $pmhandler->set_data ($pm_change);
-                            if (!$pmhandler->validate_pm ())
-                                return false;
-                            else {
-                                $pmhandler->insert_pm ();
-                            }
-                        }
-
-                    }
                 }
+            }
 
-                $new_pair = array(
-                    "typ" => $typ,
-                    "lover1" => $lover1,
-                    "gif1" => $gif1,
-                    "lover2" => $lover2,
-                    "gif2" => $gif2,
-                );
+            $new_pair = array(
+                "typ" => $typ,
+                "lover1" => $lover1,
+                "gif1" => $gif1,
+                "lover2" => $lover2,
+                "gif2" => $gif2,
+            );
 
-                $db->insert_query ("pairs", $new_pair);
-                redirect ("misc.php?action=pairview_add");
+            $db->insert_query ("pairs", $new_pair);
+            redirect ("misc.php?action=pairview_add");
 
 
-            
+
 
 
             $new_pair = array(
