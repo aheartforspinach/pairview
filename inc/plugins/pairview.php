@@ -462,22 +462,6 @@ if(use_xmlhttprequest == "1")
     $db->insert_query("templates", $insert_array);
 
 
-    $insert_array = array(
-        'title' => 'pairview_pn_usercp',
-        'template' => $db->escape_string('<tr>
-<td valign="top"><input type="checkbox" class="checkbox" name="pairview_pn" id="pairview_pn" value="1" {$pn_check} /></td>
-<td><span class="smalltext"><label for="pairview_pn">{$lang->pairviewpn}</label></span></td>
-</tr>
-<tr>
-<td valign="top"><input type="checkbox" class="checkbox" name="pairview_pn_all" id="pairview_pn_all" value="1" /></td>
-<td><span class="smalltext"><label for="pairview_pn_all">{$lang->pairviewpn_all}</label></span></td>
-</tr>'),
-        'sid' => '-1',
-        'version' => '',
-        'dateline' => TIME_NOW
-    );
-    $db->insert_query("templates", $insert_array);
-
     //CSS einfügen
     $css = array(
         'name' => 'pairview.css',
