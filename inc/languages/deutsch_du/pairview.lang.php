@@ -17,5 +17,6 @@ $l['pairview_lovers'] = "mit wem";
 $l['pairview_edit'] = "Editieren";
 $l['pairview_delete'] = "Löschen";
 $l['pairview_menu'] = "Menü";
-$l['pairviewpn'] = "PN bei Pärcheneintragung bekommen?";
-$l['pairviewpn_all'] = "PN-Einstellung der Pärchen für alle Charaktere übernehmen?";
+
+// Alerts
+$l['pairview_addpair'] = "Dein Pärchen wurde in die Pairview eintragen. <br /><b><a href='misc.php?action=pairview'>Zur Pairview</a></b>";
