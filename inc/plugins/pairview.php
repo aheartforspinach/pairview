@@ -10,6 +10,9 @@ if(!defined("IN_MYBB"))
  */
 
 $plugins->add_hook("misc_start", "misc_pairview");
+if(class_exists('MybbStuff_MyAlerts_AlertTypeManager')) {
+    $plugins->add_hook("global_start", "pairview_alerts");
+}
 
 function pairview_info()
 {
@@ -46,8 +49,6 @@ function pairview_install()
 
     }
 
-    //Wann wurde die Meldung für einen bestimmten Charakter ausgeblendet? (0 Meldung wird angezeigt, 1 Meldung nicht anzeigen.)
-    $db->add_column("users", "pairview_pn", "INT(10) DEFAULT NULL");
     //einstellung
 
     $setting_group = array(
@@ -559,7 +560,11 @@ function pairview_uninstall()
     {
         $db->drop_table("pairs");
     }
+
+
     rebuild_settings();
+
+
 
     $db->delete_query("templates", "title LIKE '%pairview%'");
 
@@ -575,6 +580,23 @@ function pairview_uninstall()
 
 function pairview_activate()
 {
+    global $db, $cache;
+    //Alertseinstellungen
+    if(class_exists('MybbStuff_MyAlerts_AlertTypeManager')) {
+        $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+
+        if (!$alertTypeManager) {
+            $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
+        }
+
+        $alertType = new MybbStuff_MyAlerts_Entity_AlertType();
+        $alertType->setCode('pairview_addpair'); // The codename for your alert type. Can be any unique string.
+        $alertType->setEnabled(true);
+        $alertType->setCanBeUserDisabled(true);
+
+        $alertTypeManager->add($alertType);
+    }
+
     require MYBB_ROOT."/inc/adminfunctions_templates.php";
     find_replace_templatesets("usercp_options", "#".preg_quote('{$calendaroptions}')."#i", '{$pairview_pn}
 {$calendaroptions}');
@@ -582,6 +604,20 @@ function pairview_activate()
 
 function pairview_deactivate()
 {
+    global $db, $cache;
+
+    //Alertseinstellungen
+    if (class_exists('MybbStuff_MyAlerts_AlertTypeManager')) {
+        $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+
+        if (!$alertTypeManager) {
+            $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
+        }
+
+        $alertTypeManager->deleteByCode('pairview_addpair');
+
+    }
+
     require MYBB_ROOT."/inc/adminfunctions_templates.php";
     find_replace_templatesets("usercp_options", "#".preg_quote('{$pairview_pn}')."#i", '', 0);
 }
@@ -648,120 +684,36 @@ function misc_pairview()
             $lover_user = get_user_by_username($lover1, array('fields' => '*'));
             $lover1 = $lover_user['uid'];
 
-            $lover_user2 = get_user_by_username($lover2, array('fields' => '*'));
-            $lover2 = $lover_user2['uid'];
+            $lover_user = get_user_by_username($lover2, array('fields' => '*'));
+            $lover2 = $lover_user['uid'];
 
 
 
-            // Eine PN Versenden, um den Gegenpart zu informieren
-            $query1 = $db->query ("SELECT username, pairview_pn
-                    from ".TABLE_PREFIX."users
-                    where uid = '".$lover1."'
-                    ");
+                $new_pair = array(
+                    "typ" => $typ,
+                    "lover1" => $lover1,
+                    "gif1" => $gif1,
+                    "lover2" => $lover2,
+                    "gif2" => $gif2,
+                );
 
-            $love_name1 = $db->fetch_array ($query1);
-            $lover_name1 = $love_name1['username'];
-            $lover_pn1 = $love_name1['pairview_pn'];
+                $db->insert_query ("pairs", $new_pair);
 
-            $query2 = $db->query ("SELECT username, pairview_pn
-                    from ".TABLE_PREFIX."users
-                    where uid = '".$lover2."'
-                    ");
-            $love_name2 = $db->fetch_array ($query2);
-            $lover_name2 = $love_name2['username'];
-            $lover_pn2 = $love_name2['pairview_pn'];
+                $lovers = array(
+                    "lover1" => $lover1,
+                    "lover2" => $lover2,
+                );
 
-
-
-            if ($lover1 == $mybb->user['uid']) {
-                if($lover_pn1 != 0){
-                    $pm_change = array(
-                        "subject" => "Unser (geplantes) Pairing wurde eingetagen",
-                        "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
-                        //From: Wer schreibt die PN
-                        "fromid" => $lover1,
-                        //to: an wen geht die pn
-                        "toid" => $lover2
-                    );
-                    // $pmhandler->admin_override = true;
-                    $pmhandler->set_data ($pm_change);
-                    if (!$pmhandler->validate_pm ())
-                        return false;
-                    else {
-                        $pmhandler->insert_pm ();
+            if(class_exists('MybbStuff_MyAlerts_AlertTypeManager')) {
+                $alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('pairview_addpair');
+                foreach ($lovers as $lover) {
+                    if ($alertType != NULL && $alertType->getEnabled()) {
+                        $alert = new MybbStuff_MyAlerts_Entity_Alert((int)$lover, $alertType);
+                        MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
                     }
-                }
-            } elseif ($lover2 == $mybb->user['uid']) {
-                if($lover_pn1 != 0)
-                    $pm_change = array(
-                        "subject" => "Unser (geplantes) Pairing wurde eingetagen",
-                        "message" => "Ich habe unser Pairing in die Übersicht eingetragen. <br /> <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie {$typ}. Ich hoffe, es ist für dich in Ordnung.",
-                        //From: Wer schreibt die PN
-                        "fromid" => $lover2,
-                        //to: an wen geht die pn
-                        "toid" => $lover1
-                    );
-                // $pmhandler->admin_override = true;
-                $pmhandler->set_data ($pm_change);
-                if (!$pmhandler->validate_pm ())
-                    return false;
-                else {
-                    $pmhandler->insert_pm ();
-                }
-
-            } else {
-                if($lover_pn1 != 0 and $lover_pn2 != 0){
-                    $lover_array = array(
-                        "lover1" => $lover1,
-                        "lover2" => $lover2
-                    );
-
-                    foreach ($lover_array as $lover => $lover_uid) {
-
-                        $pm_change = array(
-                            "subject" => "Das (geplante) Pairing wurde eingetagen",
-                            "message" => "Ich habe ein Pairing in die Übersicht für dich und deinem Pairingpartner eingetragen. <br /> Es handelt sich um die Charaktere <b>{$lover_name1}</b> und <b>{$lover_name2}</b> in der Kategorie <i>{$typ}</i>. Ich hoffe, es ist für dich in Ordnung. <br /> Du kannst es dir <a href='misc.php?action=pairview'>hier</a> ansehen.",
-                            //From: Wer schreibt die PN
-                            "fromid" => $mybb->user['uid'],
-                            //to: an wen geht die pn
-                            "toid" => $lover_uid
-                        );
-                        // $pmhandler->admin_override = true;
-                        $pmhandler->set_data ($pm_change);
-                        if (!$pmhandler->validate_pm ())
-                            return false;
-                        else {
-                            $pmhandler->insert_pm ();
-                        }
-                    }
-
                 }
             }
 
-            $new_pair = array(
-                "typ" => $typ,
-                "lover1" => $lover1,
-                "gif1" => $gif1,
-                "lover2" => $lover2,
-                "gif2" => $gif2,
-            );
-
-            $db->insert_query ("pairs", $new_pair);
-            redirect ("misc.php?action=pairview_add");
-
-
-
-
-
-            $new_pair = array(
-                "typ" => $typ,
-                "lover1" => $lover1,
-                "gif1" => $gif1,
-                "lover2" => $lover2,
-                "gif2" => $gif2,
-            );
-
-            $db->insert_query ("pairs", $new_pair);
             redirect ("misc.php?action=pairview_add");
         }
         // Using the misc_help template for the page wrapper
@@ -790,7 +742,6 @@ function misc_pairview()
                 $lover1_uid = $row['lover1'];
                 $lover2_uid = $row['lover2'];
                 $pair_type = $row['typ'];
-                $option = "";
 
                 /*
                  * Zieh mal alle Informationen für den ersten Charakter aus der Usertabelle
@@ -995,5 +946,68 @@ function pv_edit_options_do()
     } else {
         //nur für aktuellen Charakter speichern
         $db->query ("UPDATE " . TABLE_PREFIX . "users SET pairview_pn=" . $pv_pn . " WHERE uid=" . $this_user . "");
+    }
+}
+
+function pairview_alerts()
+{
+    global $mybb, $lang;
+    $lang->load('pairview');
+
+    /**
+     * Alert formatter for my custom alert type.
+     */
+    class MybbStuff_MyAlerts_Formatter_AddPairFormatter extends MybbStuff_MyAlerts_Formatter_AbstractFormatter
+    {
+        /**
+         * Format an alert into it's output string to be used in both the main alerts listing page and the popup.
+         *
+         * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to format.
+         *
+         * @return string The formatted alert string.
+         */
+        public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
+        {
+            return $this->lang->sprintf(
+                $this->lang->pairview_addpair,
+                $outputAlert['from_user'],
+                $outputAlert['dateline']
+            );
+        }
+
+        /**
+         * Init function called before running formatAlert(). Used to load language files and initialize other required
+         * resources.
+         *
+         * @return void
+         */
+        public function init()
+        {
+
+        }
+
+        /**
+         * Build a link to an alert's content so that the system can redirect to it.
+         *
+         * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to build the link for.
+         *
+         * @return string The built alert, preferably an absolute link.
+         */
+        public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
+        {
+
+        }
+    }
+
+    if (class_exists('MybbStuff_MyAlerts_AlertFormatterManager')) {
+        $formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance();
+
+        if (!$formatterManager) {
+            $formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::createInstance($mybb, $lang);
+        }
+
+        $formatterManager->registerFormatter(
+            new MybbStuff_MyAlerts_Formatter_AddPairFormatter($mybb, $lang, 'pairview_addpair')
+        );
     }
 }
