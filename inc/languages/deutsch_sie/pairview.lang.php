@@ -10,7 +10,7 @@ $l['pairview_gifsize'] = "Größe 90x100, Typ ist eine Gif";
 $l['pairview_change'] = "Pärchen ändern";
 $l['pairview_change_lover1'] = "UID von Partner1 ändern.";
 $l['pairview_change_lover2'] = "UID von Partner2 ändern.";
-$l['pairview_change_lover_desc'] = "Die UID findest du immer am Ende des Profillinks. Anstatt den x steht da eine Nummer: member.php?action=profile&uid=xxx";
+$l['pairview_change_lover_desc'] = "Die UID finden Sie immer am Ende des Profillinks. Anstatt den x steht da eine Nummer: member.php?action=profile&uid=xxx";
 $l['pairview_lovername'] = "Name";
 $l['pairview_loverage'] = "Alter";
 $l['pairview_lovers'] = "mit wem";
@@ -20,3 +20,4 @@ $l['pairview_menu'] = "Menü";
 
 // Alerts
 $l['pairview_addpair'] = "Ihr Pärchen wurde in die Pairview eintragen. <br /><b><a href='misc.php?action=pairview'>Zur Pairview</a></b>";
+$l['myalerts_setting_pairview_addpair'] = "Möchten Sie eine Benachrichtung, wenn Ihr Charakter im Pairview eingetragen wurde?";
