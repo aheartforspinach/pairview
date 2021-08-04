@@ -20,3 +20,4 @@ $l['pairview_menu'] = "Menü";
 
 // Alerts
 $l['pairview_addpair'] = "Dein Pärchen wurde in die Pairview eintragen. <br /><b><a href='misc.php?action=pairview'>Zur Pairview</a></b>";
+$l['myalerts_setting_pairview_addpair'] = "Möchtest du eine Benachrichtung, wenn dein Charakter im Pairview eingetragen wurde?";
