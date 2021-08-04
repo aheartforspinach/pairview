@@ -17,3 +17,6 @@ $l['pairview_lovers'] = "mit wem";
 $l['pairview_edit'] = "Editieren";
 $l['pairview_delete'] = "Löschen";
 $l['pairview_menu'] = "Menü";
+
+// Alerts
+$l['pairview_addpair'] = "Ihr Pärchen wurde in die Pairview eintragen. <br /><b><a href='misc.php?action=pairview'>Zur Pairview</a></b>";
