@@ -308,7 +308,7 @@ if(use_xmlhttprequest == "1")
 </tr>
 <tr>
 	<td>
-  <div class="pop"><form action="misc.php?action=pairview" id="pair_edit"  method="post">
+  <div class="pop"><form action="misc.php?action=pairview_edit" id="pair_edit"  method="post">
 	  <input type="hidden" name="pairId" id="pairId" value="{$row[\'pairId\']}" />
 <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
 	<tr><td class="trow1">	<div class="profilucp">{$lang->pairview_rela}</div></td><td class="trow2">
@@ -649,17 +649,6 @@ function misc_pairview()
     //Die Sprachdatei
     $lang->load('pairview');
 
-    //Navigation bauen :D
-
-    switch ($mybb->input['action']) {
-        case "pairview_add":
-            add_breadcrumb($lang->pairview_add);
-            break;
-        case "pairview":
-            add_breadcrumb($lang->pairview);
-            break;
-    }
-
 
     //Menü
     eval("\$pairview_menu = \"" . $templates->get("pairview_menu") . "\";");
@@ -669,6 +658,8 @@ function misc_pairview()
      */
 
     if ($mybb->get_input('action') == 'pairview_add') {
+
+        add_breadcrumb($lang->pairview_add, "misc.php?action=pairview_add");
         //Gäste sollen natürlich keine Pärchen hinzufügen können.
         if ($mybb->user['uid'] == 0) {
             error_no_permission();
@@ -734,6 +725,7 @@ function misc_pairview()
      * Paare auslesen
      */
     if ($mybb->get_input('action') == 'pairview') {
+        add_breadcrumb($lang->pairview, "misc.php?action=pairview");
 
         $pair_cat_setting = $mybb->settings['pairview_category'];
         $type = explode(", ", $pair_cat_setting);
@@ -840,6 +832,7 @@ function misc_pairview()
         $pairid = intval($mybb->input['pair_edit']);
         $pair_cat_setting = $mybb->settings['pairview_category'];
         $type = explode(", ", $pair_cat_setting);
+
         //Menü
         eval("\$pairview_menu = \"" . $templates->get("pairview_menu") . "\";");
         //Menü
@@ -860,7 +853,6 @@ function misc_pairview()
 
         foreach ($type as $cat) {
 
-
             if ($cat == $pair_type) {
                 $cat_select_edit .= "<option selected>{$cat}</option>";
             } else {
@@ -869,7 +861,7 @@ function misc_pairview()
 
         }
 
-        if($_POST['pair_edit']){
+        if($mybb->input['edit']){
             $pairId = $mybb->input['pairId'];
             $typ = $db->escape_string($_POST['typ']);
             $lover1 = $db->escape_string($_POST['lover1']);
@@ -894,7 +886,7 @@ function misc_pairview()
 
 
             $db->update_query("pairs", $edit_pair, "pairId='{$pairId}'");
-            redirect("misc.php?action=pairview");
+            redirect("misc.php?action=pairview_edit");
         }
 
 
@@ -939,68 +931,8 @@ function pairview_location_activity($plugin_array)
     return $plugin_array;
 }
 
-/**
- * Was passiert wenn ein User gelöscht wird
- * Relas bei anderen zu npc umtragen
- * die relas des users löschen
- */
-$plugins->add_hook ("admin_user_users_delete_commit_end", "pairview_user_delete");
-function pairview_user_delete()
-{
-    global $db, $cache, $mybb, $user, $profile_fields;
-    $db->delete_query ('pairs', "lover1 = " . (int)$user['uid'] . " OR lover2 = " . (int)$user['uid'] . " ");
-}
-
-$plugins->add_hook ('usercp_options_start', 'pv_edit_options');
-function pv_edit_options()
-{
-    global $db, $mybb, $templates, $pn_check, $pairview_pn, $pn_check_all, $lang;
-    //Die Sprachdatei
-    $lang->load ('pairview');
-
-    $pv_pn = $mybb->user['pairview_pn'];
-    $pv_pn_all = $mybb->user['pairview_pn_all'];
-    $pn_check = '';
-    if ($pv_pn == 1) {
-        $pn_check = 'checked="checked"';
-    }
-    if ($pv_pn_all == 1) {
-        $pn_check_all = 'checked="checked"';
-    }
-
-    eval("\$pairview_pn .=\"" . $templates->get ("pairview_pn_usercp") . "\";");
-}
 
 
-//User CP: änderungen im ucp speichern
-//bei Wunsch des Users, Einstellung für alle Charaktere übernehmen
-$plugins->add_hook('usercp_do_options_start', 'pv_edit_options_do');
-function pv_edit_options_do()
-{
-    global $mybb, $db, $templates;
-    //Was hat der User eingestellt?
-    $pv_pn = $mybb->get_input ('pairview_pn', MyBB::INPUT_INT);
-    $pv_pn_all = $mybb->input['pairview_pn_all'];
-
-    //Wer ist online, Wer ist Hauptaccount.
-    $this_user = intval ($mybb->user['uid']);
-    $as_uid = intval ($mybb->user['as_uid']);
-//Soll für alle Charaktere übernommen werden oder nicht?
-    if ($pv_pn_all == 1) {
-        //Ja, alle raussuchen
-        if ($as_uid == 0) {
-            $id = intval ($mybb->user['uid']);
-        } else {
-            $id = intval ($mybb->user['as_uid']);
-        }
-        //speichern
-        $db->query ("UPDATE " . TABLE_PREFIX . "users SET pairview_pn=" . $pv_pn . " WHERE uid=" . $id . " OR as_uid=" . $id . "");
-
-    } else {
-        //nur für aktuellen Charakter speichern
-        $db->query ("UPDATE " . TABLE_PREFIX . "users SET pairview_pn=" . $pv_pn . " WHERE uid=" . $this_user . "");
-    }
-}
 
 function pairview_alerts()
 {
