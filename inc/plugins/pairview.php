@@ -886,7 +886,7 @@ function misc_pairview()
 
 
             $db->update_query("pairs", $edit_pair, "pairId='{$pairId}'");
-            redirect("misc.php?action=pairview_edit");
+            redirect("misc.php?action=pairview");
         }
 
 
