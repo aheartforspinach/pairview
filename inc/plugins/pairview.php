@@ -473,21 +473,7 @@ if(use_xmlhttprequest == "1")
     $db->insert_query("templates", $insert_array);
 
 
-    $insert_array = array(
-        'title' => 'pairview_pn_usercp',
-        'template' => $db->escape_string('<tr>
-<td valign="top"><input type="checkbox" class="checkbox" name="pairview_pn" id="pairview_pn" value="1" {$pn_check} /></td>
-<td><span class="smalltext"><label for="pairview_pn">{$lang->pairviewpn}</label></span></td>
-</tr>
-<tr>
-<td valign="top"><input type="checkbox" class="checkbox" name="pairview_pn_all" id="pairview_pn_all" value="1" /></td>
-<td><span class="smalltext"><label for="pairview_pn_all">{$lang->pairviewpn_all}</label></span></td>
-</tr>'),
-        'sid' => '-1',
-        'version' => '',
-        'dateline' => TIME_NOW
-    );
-    $db->insert_query("templates", $insert_array);
+  
 
     //CSS einfügen
     $css = array(
@@ -605,8 +591,7 @@ function pairview_activate()
     }
 
     require MYBB_ROOT."/inc/adminfunctions_templates.php";
-    find_replace_templatesets("usercp_options", "#".preg_quote('{$calendaroptions}')."#i", '{$pairview_pn}
-{$calendaroptions}');
+
 }
 
 function pairview_deactivate()
@@ -626,7 +611,7 @@ function pairview_deactivate()
     }
 
     require MYBB_ROOT."/inc/adminfunctions_templates.php";
-    find_replace_templatesets("usercp_options", "#".preg_quote('{$pairview_pn}')."#i", '', 0);
+
 }
 
 
@@ -639,9 +624,7 @@ function misc_pairview()
 
     global $mybb, $templates, $lang, $header, $headerinclude, $footer, $pairview_menu, $db, $chara_name, $page, $lover1, $lover2, $option, $edit, $chara_lover, $cat_select, $cat_select_edit, $selected, $pair_type;
 
-    //PM Handler, dass auch die Privaten Nachrichten rausgehen.
-    require_once MYBB_ROOT . "inc/datahandlers/pm.php";
-    $pmhandler = new PMDataHandler();
+  
 
     //Die Sprachdatei
     $lang->load('pairview');
