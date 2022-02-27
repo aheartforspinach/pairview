@@ -48,9 +48,6 @@ function pairview_install()
         ) ENGINE=MyISAM".$db->build_create_table_collation());
 
     }
-
-    //Wann wurde die Meldung für einen bestimmten Charakter ausgeblendet? (0 Meldung wird angezeigt, 1 Meldung nicht anzeigen.)
-    $db->add_column("users", "pairview_pn", "INT(10) DEFAULT NULL");
     //einstellung
 
     $setting_group = array(
