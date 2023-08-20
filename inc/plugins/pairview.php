@@ -277,9 +277,7 @@ if(use_xmlhttprequest == "1")
 <div class="lovebox"><table width="600px">
 	<tr><td width="100px;"><img src="{$gif1}" class="lovepic" style="margin-right: 30px;"></td>
 	<td width="400px;"><div class="lovefacts"><span class="lovefact">{$lang->pairview_lovername}</span> {$lover1}</div>
-<div class="lovefacts"><span class="lovefact">{$lang->pairview_loverage}</span> {$age1} Jahre</div>
 <div class="lovefacts"> <span class="lovefact">{$lang->pairview_lovers}</span> {$lover2}</div>
-<div class="lovefacts"><span class="lovefact">{$lang->pairview_loverage}</span> {$age2} Jahre</div></td>
 		<td width="100px;"><img src="{$gif2}" class="lovepic"></td></tr>
 	{$option}</table>
 </div>
@@ -738,11 +736,7 @@ function misc_pairview()
                 $username = format_name($lover1_info['username'], $lover1_info['usergroup'], $lover1_info['displaygroup']);
                 $lover1 = build_profile_link($username, $lover1_info['uid']);
                 $gif1 = $row['gif1'];
-                if ($lover1_info['birthday']) {
-                    $age1 = intval(date('Y', strtotime("1." . $mybb->settings['minica_month'] . "." . $mybb->settings['minica_year'] . "") - strtotime($lover1_info['birthday']))) - 1970;
-                } else {
-                    $age1 = "k/A";
-                }
+ 
                 /*
                  * Zieh mal alle Informationen für den zweiten Charakter aus der Usertabelle
                  */
@@ -755,11 +749,7 @@ function misc_pairview()
 
                 $username = format_name($lover2_info['username'], $lover2_info['usergroup'], $lover2_info['displaygroup']);
                 $lover2 = build_profile_link($username, $lover2_info['uid']);
-                if ($lover2_info['birthday']) {
-                    $age2 = intval(date('Y', strtotime("1." . $mybb->settings['minica_month'] . "." . $mybb->settings['minica_year'] . "") - strtotime($lover2_info['birthday']))) - 1970;
-                } else {
-                    $age2 = "k/A";
-                }
+
                 $gif2 = $row['gif2'];
 
 
