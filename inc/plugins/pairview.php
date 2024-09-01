@@ -1,8 +1,7 @@
 <?php
 
 // Disallow direct access to this file for security reasons
-if(!defined("IN_MYBB"))
-{
+if (!defined("IN_MYBB")) {
     die("Direct initialization of this file is not allowed.");
 }
 /*
@@ -10,21 +9,21 @@ if(!defined("IN_MYBB"))
  */
 
 $plugins->add_hook("misc_start", "misc_pairview");
-if(class_exists('MybbStuff_MyAlerts_AlertTypeManager')) {
+if (class_exists('MybbStuff_MyAlerts_AlertTypeManager')) {
     $plugins->add_hook("global_start", "pairview_alerts");
 }
 
 function pairview_info()
 {
     return array(
-        "name"			=> "Pärchenübersicht",
-        "description"	=> "Hier können alle Pärchenübersicht erstellt werden, so dass alle User eine schnelle Übersicht haben, wer mit wem Angebandelt hat oder dies in Zukunft tun wird.",
-        "website"		=> "",
-        "author"		=> "Ales",
-        "authorsite"	=> "",
-        "version"		=> "1.0",
-        "guid" 			=> "",
-        "codename"		=> "",
+        "name"          => "Pärchenübersicht",
+        "description"   => "Hier können alle Pärchenübersicht erstellt werden, so dass alle User eine schnelle Übersicht haben, wer mit wem Angebandelt hat oder dies in Zukunft tun wird.",
+        "website"       => "",
+        "author"        => "Ales",
+        "authorsite"    => "",
+        "version"       => "1.1",
+        "guid"          => "",
+        "codename"      => "",
         "compatibility" => "*"
     );
 }
@@ -35,9 +34,8 @@ function pairview_install()
 
     //Datenbankerstellung
 
-    if($db->engine=='mysql'||$db->engine=='mysqli')
-    {
-        $db->query("CREATE TABLE `".TABLE_PREFIX."pairs` (
+    if ($db->engine == 'mysql' || $db->engine == 'mysqli') {
+        $db->query("CREATE TABLE `" . TABLE_PREFIX . "pairs` (
           `pairId` int(10) NOT NULL auto_increment,
           `typ` varchar(255) NOT NULL,
            `lover1` int(10) NOT NULL,
@@ -45,8 +43,7 @@ function pairview_install()
           `gif1` varchar(255) NOT NULL,
           `gif2` varchar(255) NOT NULL,
           PRIMARY KEY (`pairId`)
-        ) ENGINE=MyISAM".$db->build_create_table_collation());
-
+        ) ENGINE=MyISAM" . $db->build_create_table_collation());
     }
     //einstellung
 
@@ -80,15 +77,14 @@ function pairview_install()
     );
 
 
-    foreach($setting_array as $name => $setting)
-    {
+    foreach ($setting_array as $name => $setting) {
         $setting['name'] = $name;
         $setting['gid'] = $gid;
 
         $db->insert_query('settings', $setting);
     }
 
-// Don't forget this!
+    // Don't forget this!
     rebuild_settings();
 
 
@@ -471,7 +467,7 @@ if(use_xmlhttprequest == "1")
     $db->insert_query("templates", $insert_array);
 
 
-  
+
 
     //CSS einfügen
     $css = array(
@@ -535,34 +531,30 @@ font-weight: bold;
 function pairview_is_installed()
 {
     global $db;
-    if($db->table_exists("pairs"))
-    {
-        return true;
-    }
-    return false;
+
+    return $db->table_exists("pairs");
 }
 
 function pairview_uninstall()
 {
     global $db;
 
-    $db->delete_query('settings', "name IN ('excluded_groups')");
+    $db->delete_query('settings', "name LIKE 'pairview%");
     $db->delete_query('settinggroups', "name = 'pairview'");
-// Don't forget this
+    // Don't forget this
     rebuild_settings();
 
-    if($db->table_exists("pairs"))
-    {
+    if ($db->table_exists("pairs")) {
         $db->drop_table("pairs");
     }
     rebuild_settings();
 
     $db->delete_query("templates", "title LIKE '%pairview%'");
 
-    require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
+    require_once MYBB_ADMIN_DIR . "inc/functions_themes.php";
     $db->delete_query("themestylesheets", "name = 'pairview.css'");
     $query = $db->simple_select("themes", "tid");
-    while($theme = $db->fetch_array($query)) {
+    while ($theme = $db->fetch_array($query)) {
         update_theme_stylesheet_list($theme['tid']);
     }
 
@@ -573,7 +565,7 @@ function pairview_activate()
 {
     global $db, $cache;
     //Alertseinstellungen
-    if(class_exists('MybbStuff_MyAlerts_AlertTypeManager')) {
+    if (class_exists('MybbStuff_MyAlerts_AlertTypeManager')) {
         $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
         if (!$alertTypeManager) {
@@ -588,8 +580,7 @@ function pairview_activate()
         $alertTypeManager->add($alertType);
     }
 
-    require MYBB_ROOT."/inc/adminfunctions_templates.php";
-
+    require MYBB_ROOT . "/inc/adminfunctions_templates.php";
 }
 
 function pairview_deactivate()
@@ -605,11 +596,9 @@ function pairview_deactivate()
         }
 
         $alertTypeManager->deleteByCode('pairview_addpair');
-
     }
 
-    require MYBB_ROOT."/inc/adminfunctions_templates.php";
-
+    require MYBB_ROOT . "/inc/adminfunctions_templates.php";
 }
 
 
@@ -619,14 +608,10 @@ function pairview_deactivate()
 
 function misc_pairview()
 {
-
-    global $mybb, $templates, $lang, $header, $headerinclude, $footer, $pairview_menu, $db, $chara_name, $page, $lover1, $lover2, $option, $edit, $chara_lover, $cat_select, $cat_select_edit, $selected, $pair_type;
-
-  
+    global $mybb, $templates, $lang, $theme, $header, $headerinclude, $footer, $pairview_menu, $db, $chara_name, $page, $lover1, $lover2, $option, $edit, $chara_lover, $cat_select, $cat_select_edit, $selected, $pair_type;
 
     //Die Sprachdatei
     $lang->load('pairview');
-
 
     //Menü
     eval("\$pairview_menu = \"" . $templates->get("pairview_menu") . "\";");
@@ -636,13 +621,11 @@ function misc_pairview()
      */
 
     if ($mybb->get_input('action') == 'pairview_add') {
-
         add_breadcrumb($lang->pairview_add, "misc.php?action=pairview_add");
         //Gäste sollen natürlich keine Pärchen hinzufügen können.
         if ($mybb->user['uid'] == 0) {
             error_no_permission();
         }
-
 
         $pair_cat_setting = $mybb->settings['pairview_category'];
         $pair_cat = explode(", ", $pair_cat_setting);
@@ -650,10 +633,9 @@ function misc_pairview()
             $cat_select .= "<option value='{$cat}'>{$cat}</option>";
         }
 
-
         if ($mybb->user['uid'] == 0) {
             //  error_no_permission();
-        } elseif ($_POST['add']) {
+        } elseif ($mybb->get_input('add')) {
             $typ = $db->escape_string($_POST['typ']);
             $lover1 = $db->escape_string($_POST['lover1']);
             $gif1 = $db->escape_string($_POST['gif1']);
@@ -681,7 +663,7 @@ function misc_pairview()
                 "lover2" => $lover2,
             );
 
-            if(class_exists('MybbStuff_MyAlerts_AlertTypeManager')) {
+            if (class_exists('MybbStuff_MyAlerts_AlertTypeManager')) {
                 $alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('pairview_addpair');
                 foreach ($lovers as $lover) {
                     if ($alertType != NULL && $alertType->getEnabled()) {
@@ -708,6 +690,7 @@ function misc_pairview()
         $pair_cat_setting = $mybb->settings['pairview_category'];
         $type = explode(", ", $pair_cat_setting);
 
+        $pair_bit = '';
         foreach ($type as $typ) {
             $pairs = '';
             $select = $db->query("SELECT *
@@ -726,34 +709,21 @@ function misc_pairview()
                 /*
                  * Zieh mal alle Informationen für den ersten Charakter aus der Usertabelle
                  */
-
-                $lover1_select = $db->query("select *
-              from " . TABLE_PREFIX . "users
-              where uid = '$lover1_uid'
-              ");
-                $lover1_info = $db->fetch_array($lover1_select);
-
+                $lover1_info = get_user($lover1_uid);
                 $username = format_name($lover1_info['username'], $lover1_info['usergroup'], $lover1_info['displaygroup']);
                 $lover1 = build_profile_link($username, $lover1_info['uid']);
                 $gif1 = $row['gif1'];
- 
+
                 /*
                  * Zieh mal alle Informationen für den zweiten Charakter aus der Usertabelle
                  */
-
-                $lover2_select = $db->query("select *
-              from " . TABLE_PREFIX . "users
-              where uid = '$lover2_uid'
-              ");
-                $lover2_info = $db->fetch_array($lover2_select);
-
+                $lover2_info = get_user($lover2_uid);
                 $username = format_name($lover2_info['username'], $lover2_info['usergroup'], $lover2_info['displaygroup']);
                 $lover2 = build_profile_link($username, $lover2_info['uid']);
 
                 $gif2 = $row['gif2'];
 
-
-                if ($mybb->usergroup['canmodcp'] == 1 OR $row['lover1'] == $mybb->user['uid'] OR $row['lover2'] == $mybb->user['uid']) {
+                if ($mybb->usergroup['canmodcp'] == 1 || $row['lover1'] == $mybb->user['uid'] || $row['lover2'] == $mybb->user['uid']) {
                     $cat_select_edit = "";
                     $lover_user = get_user($row['lover1'], array('fields' => '*'));
                     $row['lover1'] = $lover_user['username'];
@@ -762,15 +732,7 @@ function misc_pairview()
                     $row['lover2'] = $lover_user['username'];
 
                     foreach ($type as $cat) {
-
-
-                        if ($cat == $pair_type) {
-                            $cat_select_edit .= "<option selected>{$cat}</option>";
-                        } else {
-                            $cat_select_edit .= "<option>{$cat}</option>";
-                        }
-
-
+                        $cat_select_edit = $cat == $pair_type ? "<option selected>{$cat}</option>" : "<option>{$cat}</option>";
                     }
 
                     $edit = "<a href='misc.php?action=pairview_edit&pair_edit=$row[pairId]'>Editieren</a>";
@@ -784,7 +746,7 @@ function misc_pairview()
         }
 
 
-        $delete = $mybb->input['delete'];
+        $delete = $mybb->get_input('delete');
         if ($delete) {
             $db->delete_query("pairs", "pairId = '$delete'");
             redirect("misc.php?action=pairview");
@@ -794,7 +756,6 @@ function misc_pairview()
         // Using the misc_help template for the page wrapper
         eval("\$page = \"" . $templates->get("pairview") . "\";");
         output_page($page);
-
     }
 
 
@@ -828,10 +789,9 @@ function misc_pairview()
             } else {
                 $cat_select_edit .= "<option>{$cat}</option>";
             }
-
         }
 
-        if($mybb->input['edit']){
+        if ($mybb->input['edit']) {
             $pairId = $mybb->input['pairId'];
             $typ = $db->escape_string($_POST['typ']);
             $lover1 = $db->escape_string($_POST['lover1']);
@@ -863,23 +823,21 @@ function misc_pairview()
         // Using the misc_help template for the page wrapper
         eval("\$page = \"" . $templates->get("pairview_chara_edit") . "\";");
         output_page($page);
-
     }
-
 }
 
 //wer ist wo
-$plugins->add_hook ('fetch_wol_activity_end', 'pairview_user_activity');
-$plugins->add_hook ('build_friendly_wol_location_end', 'pairview_location_activity');
+$plugins->add_hook('fetch_wol_activity_end', 'pairview_user_activity');
+$plugins->add_hook('build_friendly_wol_location_end', 'pairview_location_activity');
 
 function pairview_user_activity($user_activity)
 {
     global $user;
 
-    if (my_strpos ($user['location'], "misc.php?action=pairview") !== false) {
+    if (my_strpos($user['location'], "misc.php?action=pairview") !== false) {
         $user_activity['activity'] = "pairview";
     }
-    if (my_strpos ($user['location'], "misc.php?action=pairview_add") !== false) {
+    if (my_strpos($user['location'], "misc.php?action=pairview_add") !== false) {
         $user_activity['activity'] = "pairview_add";
     }
 
@@ -901,9 +859,6 @@ function pairview_location_activity($plugin_array)
     return $plugin_array;
 }
 
-
-
-
 function pairview_alerts()
 {
     global $mybb, $lang;
@@ -923,10 +878,12 @@ function pairview_alerts()
          */
         public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
         {
+            $dateline = array_key_exists('dateline', $outputAlert) ? $outputAlert['dateline'] : '';
+
             return $this->lang->sprintf(
                 $this->lang->pairview_addpair,
                 $outputAlert['from_user'],
-                $outputAlert['dateline']
+                $dateline
             );
         }
 
@@ -936,10 +893,7 @@ function pairview_alerts()
          *
          * @return void
          */
-        public function init()
-        {
-
-        }
+        public function init() {}
 
         /**
          * Build a link to an alert's content so that the system can redirect to it.
@@ -948,10 +902,7 @@ function pairview_alerts()
          *
          * @return string The built alert, preferably an absolute link.
          */
-        public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
-        {
-
-        }
+        public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert) {}
     }
 
     if (class_exists('MybbStuff_MyAlerts_AlertFormatterManager')) {
